@@ -4,38 +4,36 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.hh.appraisal.springboot.core.baen.PageBean;
 import java.util.List;
-
-import com.hh.appraisal.springboot.bean.QuestionAllBean;
-import com.hh.appraisal.springboot.bean.UserAnswersBean;
-import com.hh.appraisal.springboot.entity.UserAnswers;
+import com.hh.appraisal.springboot.bean.EvaluatoionOrderBean;
+import com.hh.appraisal.springboot.entity.EvaluatoionOrder;
 
 /**
- * UserAnswers Service 接口
+ * EvaluatoionCode Service 接口
  * @author gaigai
  * @date 2021/06/26
  */
-public interface UserAnswersService extends IService<UserAnswers> {
+public interface EvaluatoionOrderService extends IService<EvaluatoionOrder> {
 
     /**
      * 根据唯一标识获取实体
      * @param code 唯一标识
      * @return
      */
-    UserAnswersBean findByCode(String code);
+    EvaluatoionOrderBean findByCode(String code);
 
     /**
      * 根据唯一标识集合获取实体
      * @param codeList 唯一标识集合
      * @return
      */
-    List<UserAnswersBean> findByCodeList(List<String> codeList);
+    List<EvaluatoionOrderBean> findByCodeList(List<String> codeList);
 
     /**
      * 查询列表
      * @param bean
      * @return
      */
-    List<UserAnswersBean> findList(UserAnswersBean bean);
+    List<EvaluatoionOrderBean> findList(EvaluatoionOrderBean bean);
 
     /**
      * 分页查询
@@ -43,21 +41,21 @@ public interface UserAnswersService extends IService<UserAnswers> {
      * @param pageBean
      * @return
      */
-    Page<UserAnswersBean> findPage(UserAnswersBean bean, PageBean pageBean);
+    Page<EvaluatoionOrderBean> findPage(EvaluatoionOrderBean bean, PageBean pageBean);
 
     /**
      * 添加一条记录
      * @param bean
      * @return
      */
-    UserAnswersBean add(UserAnswersBean bean);
+    EvaluatoionOrderBean add(EvaluatoionOrderBean bean);
 
     /**
      * 根据唯一标识更新一条记录
      * @param bean
      * @return
      */
-    int updateByCode(UserAnswersBean bean);
+    int updateByCode(EvaluatoionOrderBean bean);
 
     /**
      * 根据唯一标识删除一条记录
@@ -74,17 +72,4 @@ public interface UserAnswersService extends IService<UserAnswers> {
      */
     void deleteByCode(List<String> codeList);
     
-    /**
-     * 找到题目
-     */
-    QuestionAllBean findQuestion(Integer QUESTION_NO,String EVALUATOION_CODE,String productCode);
-    
-    /**
-     * 获取下一题
-     * @param evaluationUserCode
-     * @return
-     * @throws Exception
-     */
-    QuestionAllBean getQuestion(String evaluationUserCode,String productCode);
-
 }

@@ -83,4 +83,10 @@ public class QuestionAllBean implements Serializable {
     @ApiModelProperty(value = "问题的选项")
     private List<QuestionOptionsBean> questionOptionsBean;
 
+    /**
+     * 填空题答案
+     */
+    @ExcelField("题目类型")
+    @ApiModelProperty(value = "题目类型")
+    private String questionType;
 }

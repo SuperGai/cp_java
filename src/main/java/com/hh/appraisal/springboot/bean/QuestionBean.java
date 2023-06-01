@@ -95,4 +95,10 @@ public class QuestionBean implements Serializable {
     @ApiModelProperty(value = "问题 唯一标识 集合")
     private List<String> questionCodeList;
 
+    /**
+     * 填空题答案
+     */
+    @ExcelField("题目类型")
+    @ApiModelProperty(value = "题目类型")
+    private String questionType;
 }

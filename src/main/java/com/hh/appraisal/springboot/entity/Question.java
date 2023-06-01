@@ -61,4 +61,10 @@ public class Question extends BasicEntity {
      */
     @EntityDoc(note = "因子")
     private String divisorCode;
+    
+    /**
+     * 题目类型
+     */
+    @EntityDoc(note = "题目类型")
+    private String questionType;
 }

@@ -104,6 +104,14 @@ public class UserAnswersBean implements Serializable {
     @ApiModelProperty(value = "花费时间")
     private double spendTime;
     
+
+    /**
+     * 填空答案
+     */
+    @ExcelField("填空答案")
+    @ApiModelProperty(value = "填空答案")
+    private String value;
+    
     /**
      * 题目选项表 唯一标识 集合
      */

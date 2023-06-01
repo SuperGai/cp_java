@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.hh.appraisal.springboot.bean.EvaluatoionOrderBean;
 import com.hh.appraisal.springboot.bean.ProductBean;
 import com.hh.appraisal.springboot.bean.WxMiniAppUserBean;
 import com.hh.appraisal.springboot.bean.system.SysApiBean;
@@ -15,6 +16,7 @@ import com.hh.appraisal.springboot.bean.system.SysFunctionBean;
 import com.hh.appraisal.springboot.bean.system.SysRoleBean;
 import com.hh.appraisal.springboot.bean.system.SysRoleFunctionBean;
 import com.hh.appraisal.springboot.bean.system.SysUserBean;
+import com.hh.appraisal.springboot.constant.CpStatus;
 import com.hh.appraisal.springboot.core.annotation.NoPermission;
 import com.hh.appraisal.springboot.core.baen.JwtTokenBean;
 import com.hh.appraisal.springboot.core.baen.PageBean;
@@ -31,6 +33,7 @@ import com.hh.appraisal.springboot.entity.EvaluatoionUser;
 import com.hh.appraisal.springboot.entity.School;
 import com.hh.appraisal.springboot.entity.system.SysRole;
 import com.hh.appraisal.springboot.service.EvaluatoionCodeService;
+import com.hh.appraisal.springboot.service.EvaluatoionOrderService;
 import com.hh.appraisal.springboot.service.EvaluatoionUserService;
 import com.hh.appraisal.springboot.service.ProductService;
 import com.hh.appraisal.springboot.service.WxMiniAppUserService;
@@ -72,6 +75,7 @@ public class WxMiniAppUserController {
 	private final EvaluatoionUserService evaluatoionUserService;
 	private final SysDictService sysDictService;
 	private final ProductService productService;
+	private final EvaluatoionOrderService evaluatoionOrderService;
 
 	@Autowired
 	SchoolMapper schoolMapper;
@@ -79,7 +83,8 @@ public class WxMiniAppUserController {
 	public WxMiniAppUserController(JwtService jwtService, EvaluatoionCodeService evaluatoionCodeService,
 			SysUserService userService, SysRoleService roleService, SysApiService apiService,
 			UserAnswersMapper userAnswersMapper, EvaluatoionUserService evaluatoionUserService,
-			SysDictService sysDictService, ProductService productService) {
+			SysDictService sysDictService, ProductService productService,
+			EvaluatoionOrderService evaluatoionOrderService) {
 		this.jwtService = jwtService;
 		this.evaluatoionCodeService = evaluatoionCodeService;
 		this.apiService = apiService;
@@ -87,6 +92,7 @@ public class WxMiniAppUserController {
 		this.evaluatoionUserService = evaluatoionUserService;
 		this.sysDictService = sysDictService;
 		this.productService = productService;
+		this.evaluatoionOrderService = evaluatoionOrderService;
 	}
 
 	/**
@@ -127,7 +133,15 @@ public class WxMiniAppUserController {
 		userInfo.setIsused("Y");
 		userInfo.setUpdateTime(new Date());
 		evaluatoionCodeService.saveOrUpdate(userInfo);
-
+		// 获取待答题的订单清单
+		EvaluatoionOrderBean queryOrderBean = new EvaluatoionOrderBean();
+		queryOrderBean.setEvaluatoionCode(code);
+		queryOrderBean.setStatus("!"+CpStatus.COMPLETE);
+		List<EvaluatoionOrderBean> orderList=evaluatoionOrderService.findList(queryOrderBean);
+		if(orderList==null||orderList.size()==0) {
+			return RestBean.error("测评已完成！");
+		}
+		//获取学校信息
 		School school = schoolMapper.selectOne(new QueryWrapper<School>().eq("code", userInfo.getShoolCode()));
 		// 用户所属角色列表
 		SysApiBean bean = new SysApiBean();
@@ -146,10 +160,12 @@ public class WxMiniAppUserController {
 		if (StringUtils.isBlank(jwtToken)) {
 			return RestBean.error("业务系统登录失败");
 		}
+		// 取未完成订单的第一个产品code获取产品信息
+		ProductBean product = productService.findByCode(orderList.get(0).getProductCode());
+		
 		// 获取当前题序
-		int questionNo = userAnswersMapper.getMinUnCompleteNo(code);
-		// 获取产品信息
-		ProductBean product = productService.findByCode(userInfo.getProductCode());
+		int questionNo = userAnswersMapper.getMinUnCompleteNo(code,product.getCode());
+		
 		String colConfigName = "";
 		// 如果产品信息为中小学心理测评，就获取这个产品需要填写的用户信息的字段
 		if (product.getProductName().equals("中学生心理测评")) {

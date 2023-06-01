@@ -81,6 +81,10 @@ public class UserAnswers extends BasicEntity {
     @EntityDoc(note = "产品code")
     private String productCode;
     
-    
+    /**
+     * 填空答案
+     */
+    @EntityDoc(note = "填空答案")
+    private String value;
 
 }

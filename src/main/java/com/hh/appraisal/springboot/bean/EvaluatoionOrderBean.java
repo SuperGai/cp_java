@@ -17,19 +17,19 @@ import java.lang.Integer;
 import java.util.Date;
 
 /**
- * 测评码Bean
+ * 测评订单Bean
  * 用于控制层展示数据
- * @see com.hh.appraisal.springboot.entity.EvaluatoionCode
+ * @see com.hh.appraisal.springboot.entity.EvaluatoionOrderBean
  * @author gaigai
- * @date 2021/06/26
+ * @date 2023/06/31
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel(description = "测评码实体")
-@Excel("测评码")
-public class EvaluatoionCodeBean implements Serializable {
+@ApiModel(description = "测评订单实体")
+@Excel("测评订单")
+public class EvaluatoionOrderBean implements Serializable {
 
     /**
      * 主键
@@ -37,37 +37,12 @@ public class EvaluatoionCodeBean implements Serializable {
     @ApiModelProperty(value = "主键")
     private String code;
     
-    
-    //测评码对应产品为一对多关系
-//    /**
-//     * 产品Code
-//     */
-//    @ExcelField("产品名称")
-//    @ApiModelProperty(value = "产品名称")
-//    private String productCode;
-    
-    
-	/**
-	 * 产品集合
-	 */
-	@ExcelField("产品名称")
-	@ApiModelProperty(value = "产品名称")
-	private List<String> productCode;
-    
-    
     /**
-     * 学校Code
+     * 产品Code
      */
-    @ExcelField("学校")
-    @ApiModelProperty(value = "学校Code")
-    private String shoolCode;
-    
-    /**
-     * 人员类型
-     */
-//    @ExcelField("人员类型")
-    @ApiModelProperty(value = "人员类型")
-    private String personType;
+    @ExcelField("产品名称")
+    @ApiModelProperty(value = "产品名称")
+    private String productCode;
     
     /**
      * 测评码
@@ -91,10 +66,11 @@ public class EvaluatoionCodeBean implements Serializable {
     private String endDate;
 
     /**
-     * 是否被使用
+     * 状态
      */
-    @ApiModelProperty(value = "是否被使用")
-    private String isused;
+    @ExcelField(value = "测评状态")
+    @ApiModelProperty(value = "测评状态")
+    private String status;
 
     /**
      * 数据是否有效
@@ -113,12 +89,12 @@ public class EvaluatoionCodeBean implements Serializable {
      */
     @ApiModelProperty(value = "记录更新时间")
     private Date updateTime;
-
-
+    
     /**
-     * 测评码 唯一标识 集合
+     * 订单 唯一标识 集合
      */
-    @ApiModelProperty(value = "测评码 唯一标识 集合")
-    private List<String> evaluatoionCodeCodeList;
+    @ApiModelProperty(value = "订单 唯一标识 集合")
+    private List<String> evaluatoionOrderList;
+
 
 }

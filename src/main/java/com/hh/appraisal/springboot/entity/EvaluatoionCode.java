@@ -34,11 +34,11 @@ public class EvaluatoionCode extends BasicEntity {
 //	ISUSED	CHAR	是否被使用
 //	ISACTIVE	CHAR	是否可用
 	
-    /**
-     * 产品Code
-     */
-    @EntityDoc(note = "产品Code")
-    private String productCode;
+//    /**
+//     * 产品Code
+//     */
+//    @EntityDoc(note = "产品Code")
+//    private String productCode;
 	
     /**
      * 学校Code

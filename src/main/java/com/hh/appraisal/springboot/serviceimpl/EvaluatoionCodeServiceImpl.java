@@ -26,11 +26,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.hh.appraisal.springboot.bean.EvaluatoionCodeBean;
+import com.hh.appraisal.springboot.bean.EvaluatoionOrderBean;
 import com.hh.appraisal.springboot.bean.SchoolBean;
+import com.hh.appraisal.springboot.constant.CpStatus;
 import com.hh.appraisal.springboot.entity.EvaluatoionCode;
 import com.hh.appraisal.springboot.dao.EvaluatoionCodeMapper;
 import com.hh.appraisal.springboot.dao.SchoolMapper;
 import com.hh.appraisal.springboot.service.EvaluatoionCodeService;
+import com.hh.appraisal.springboot.service.EvaluatoionOrderService;
 import com.hh.appraisal.springboot.service.SchoolService;
 import com.hh.appraisal.springboot.utils.GenerateCodeUtils;
 
@@ -48,6 +51,9 @@ public class EvaluatoionCodeServiceImpl extends ServiceImpl<EvaluatoionCodeMappe
 	private final EvaluatoionCodeMapper evaluatoionCodeMapper;
 	@Autowired
 	private SchoolService schoolService;
+	
+	@Autowired
+	private EvaluatoionOrderService evaluatoionOrderService;
 
 	public EvaluatoionCodeServiceImpl(EvaluatoionCodeMapper evaluatoionCodeMapper) {
 		this.evaluatoionCodeMapper = evaluatoionCodeMapper;
@@ -136,6 +142,17 @@ public class EvaluatoionCodeServiceImpl extends ServiceImpl<EvaluatoionCodeMappe
 		BeanUtils.copyProperties(bean, source);
 		evaluatoionCodeMapper.insert(source);
 		BeanUtils.copyProperties(source, bean);
+		//获取对应的产品集合
+		List<String> productList=bean.getProductCode();
+		for (Iterator iterator = productList.iterator(); iterator.hasNext();) {
+			String productCode = (String) iterator.next();
+			EvaluatoionOrderBean orderBean=new EvaluatoionOrderBean();
+			orderBean.setProductCode(productCode);
+			orderBean.setEvaluatoionCode(code);
+			orderBean.setStatus(CpStatus.INIT);
+			evaluatoionOrderService.add(orderBean);
+		}
+		
 		return bean;
 	}
 
@@ -238,6 +255,16 @@ public class EvaluatoionCodeServiceImpl extends ServiceImpl<EvaluatoionCodeMappe
 			EvaluatoionCode source = new EvaluatoionCode();
 			BeanUtils.copyProperties(bean, source);
 			evaluatoionCodeMapper.insert(source);
+			//获取对应的产品集合
+			List<String> productList=bean.getProductCode();
+			for (Iterator iterator = productList.iterator(); iterator.hasNext();) {
+				String productCode = (String) iterator.next();
+				EvaluatoionOrderBean orderBean=new EvaluatoionOrderBean();
+				orderBean.setProductCode(productCode);
+				orderBean.setEvaluatoionCode(code);
+				orderBean.setStatus(CpStatus.INIT);
+				evaluatoionOrderService.add(orderBean);
+			}
 		}
 		return number;
 	}

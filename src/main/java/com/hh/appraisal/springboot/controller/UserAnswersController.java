@@ -2,6 +2,8 @@ package com.hh.appraisal.springboot.controller;
 
 import io.swagger.annotations.*;
 
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -9,7 +11,9 @@ import com.hh.appraisal.springboot.core.annotation.NoPermission;
 import com.hh.appraisal.springboot.core.baen.PageBean;
 import com.hh.appraisal.springboot.core.baen.RestBean;
 import com.hh.appraisal.springboot.core.constant.RestCode;
+import com.hh.appraisal.springboot.entity.EvaluatoionOrder;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,11 +28,16 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.hh.appraisal.springboot.core.constant.AuthConstant;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.hh.appraisal.springboot.bean.EvaluatoionOrderBean;
 import com.hh.appraisal.springboot.bean.EvaluatoionUserBean;
+import com.hh.appraisal.springboot.bean.ProductBean;
 import com.hh.appraisal.springboot.bean.QuestionAllBean;
 import com.hh.appraisal.springboot.bean.UserAnswersBean;
+import com.hh.appraisal.springboot.constant.CpStatus;
+import com.hh.appraisal.springboot.service.EvaluatoionOrderService;
 import com.hh.appraisal.springboot.service.GeneraPdfAsyncTaskService;
 import com.hh.appraisal.springboot.service.GeneraPdfAsyncTaskService3;
+import com.hh.appraisal.springboot.service.ProductService;
 import com.hh.appraisal.springboot.service.UserAnswersService;
 import com.wuwenze.poi.ExcelKit;
 
@@ -45,15 +54,21 @@ public class UserAnswersController {
 
 	private final UserAnswersService userAnswersService;
 
+	private final EvaluatoionOrderService evaluatoionOrderService;
+
 	@Autowired
 	GeneraPdfAsyncTaskService generaPdfAsyncTaskService;
-	
+
 	@Autowired
 	GeneraPdfAsyncTaskService3 generaPdfAsyncTaskService2;
-	
 
-	public UserAnswersController(UserAnswersService userAnswersService) {
+	@Autowired
+	ProductService productService;
+
+	public UserAnswersController(UserAnswersService userAnswersService,
+			EvaluatoionOrderService evaluatoionOrderService) {
 		this.userAnswersService = userAnswersService;
+		this.evaluatoionOrderService = evaluatoionOrderService;
 	}
 
 	/**
@@ -76,7 +91,7 @@ public class UserAnswersController {
 
 		return RestBean.ok(page);
 	}
-	
+
 	/**
 	 * 根据授权码获取集合
 	 * 
@@ -89,12 +104,11 @@ public class UserAnswersController {
 	@ApiImplicitParam(paramType = "header", dataType = "String", name = AuthConstant.TOKEN, value = "鉴权token", required = true)
 	@RequestMapping(value = "/listByEvaluationCode", method = { RequestMethod.POST })
 	public RestBean listByEvaluationCode(@RequestParam("evaluationUserCode") String evaluationUserCode) {
-		UserAnswersBean bean=new UserAnswersBean();
+		UserAnswersBean bean = new UserAnswersBean();
 		bean.setEvaluationUserCode(evaluationUserCode);
 		List<UserAnswersBean> page = userAnswersService.findList(bean);
 		return RestBean.ok(page);
 	}
-	
 
 	/**
 	 * 查看详情
@@ -154,19 +168,24 @@ public class UserAnswersController {
 	@ApiOperation(value = "答题", response = RestBean.class)
 	@ApiImplicitParam(paramType = "header", dataType = "String", name = AuthConstant.TOKEN, value = "鉴权token", required = true)
 	@RequestMapping(value = "/updateAnswer", method = { RequestMethod.POST })
-	public RestBean update(@RequestParam("code") String code,@RequestParam("questionOptionsCode")  String questionOptionsCode,@RequestParam("spendTime")  double spendTime) {
+	public RestBean update(@RequestParam("code") String code,
+			@RequestParam("questionOptionsCode") String questionOptionsCode,
+			@RequestParam("spendTime") double spendTime, @RequestParam("value") String value) {
 		if (code == null || ObjectUtils.isEmpty(code)) {
 			return RestBean.error(RestCode.DEFAULT_PARAMS_ERROR);
 		}
-		UserAnswersBean bean=userAnswersService.findByCode(code);
-		bean.setQuestionOptionsCode(questionOptionsCode);
-		bean.setIsComplete("Y");	
+		UserAnswersBean bean = userAnswersService.findByCode(code);
+		if (questionOptionsCode != null && questionOptionsCode.length() > 0) {
+			bean.setQuestionOptionsCode(questionOptionsCode);
+		}
+		if (value != null && value.length() > 0) {
+			bean.setValue(value);
+		}
+		bean.setIsComplete("Y");
 		bean.setSpendTime(spendTime);
 		return RestBean.ok(userAnswersService.updateByCode(bean));
 	}
 
-	
-	
 	/**
 	 * 根据唯一标识删除一条记录
 	 * 
@@ -202,25 +221,22 @@ public class UserAnswersController {
 		return RestBean.ok();
 	}
 
-	
-	
 	/**
 	 * 导出EXCEL
 	 * 
 	 * @param codeList
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@ApiOperation(value = "导出")
-    @NoPermission(noLogin = true)
+	@NoPermission(noLogin = true)
 	@ApiImplicitParam(paramType = "header", dataType = "String", name = AuthConstant.TOKEN, value = "鉴权token", required = true)
 	@RequestMapping(value = "/excel", method = { RequestMethod.GET })
 	public void export(UserAnswersBean bean, HttpServletResponse response) throws IOException {
 		List<UserAnswersBean> page = userAnswersService.findList(bean);
 		ExcelKit.$Export(UserAnswersBean.class, response).downXlsx(page, false);
 	}
-	
-	
+
 	/**
 	 * 完成答题
 	 * 
@@ -230,25 +246,53 @@ public class UserAnswersController {
 	@ApiOperation(value = "完成答题", response = RestBean.class)
 	@ApiImplicitParam(paramType = "header", dataType = "String", name = AuthConstant.TOKEN, value = "鉴权token", required = true)
 	@RequestMapping(value = "/completeAnswer", method = { RequestMethod.POST })
-	public RestBean completeAnswer(@RequestParam("evaluationUserCode") String evaluationUserCode) {
+	public RestBean completeAnswer(@RequestParam("evaluationUserCode") String evaluationUserCode,
+			@RequestParam("productCode") String productCode) {
 		if (ObjectUtils.isEmpty(evaluationUserCode)) {
 			return RestBean.error(RestCode.DEFAULT_PARAMS_ERROR);
 		}
-//		UserAnswersBean bean = new UserAnswersBean();
-//		bean.setEvaluationUserCode(evaluationUserCode);
-//		List<UserAnswersBean> list = userAnswersService.findList(bean);
-		try {
-			generaPdfAsyncTaskService.executeAsyncTask(evaluationUserCode);
-//			generaPdfAsyncTaskService2.executeAsyncTask(evaluationUserCode);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (ObjectUtils.isEmpty(productCode)) {
+			return RestBean.error(RestCode.DEFAULT_PARAMS_ERROR);
 		}
+		// 获取当前测评的订单,更新成为进行中
+		EvaluatoionOrder order = evaluatoionOrderService.getOne(new QueryWrapper<EvaluatoionOrder>()
+				.eq("product_Code", productCode).eq("evaluatoion_code", evaluationUserCode));
+		EvaluatoionOrderBean restBean = EvaluatoionOrderBean.builder().build();
+		BeanUtils.copyProperties(order, restBean);
+		restBean.setStatus(CpStatus.COMPLETE);
+		evaluatoionOrderService.updateByCode(restBean);
+
+		// 获取待答题的订单清单,如果不为空开始下一次答题
+		EvaluatoionOrderBean queryOrderBean = new EvaluatoionOrderBean();
+		queryOrderBean.setEvaluatoionCode(evaluationUserCode);
+		queryOrderBean.setStatus("!" + CpStatus.COMPLETE);
+		List<EvaluatoionOrderBean> orderList = evaluatoionOrderService.findList(queryOrderBean);
+		// 不存在未完成的题目代表已经完成全部答题
+		if (orderList == null || orderList.size() == 0) {
+			ProductBean productBean = productService.findByCode(productCode);
+			if (productBean.getProductName().equals("中学生心理测评")) {
+				try {
+					generaPdfAsyncTaskService.executeAsyncTask(evaluationUserCode);
+//				generaPdfAsyncTaskService2.executeAsyncTask(evaluationUserCode);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+
+			}
+		} else {
+			String nextProductCode = orderList.get(0).getProductCode();
+			JSONObject result = new JSONObject();
+			result.put("nextProductCode", nextProductCode);
+			return RestBean.ok(result);
+		}
+
 		return RestBean.ok();
 	}
 
 	/**
-	 * 开始答题
+	 * 开始答题 ------需要修改传入产品参数
 	 * 
 	 * @param codeList
 	 * @return
@@ -256,11 +300,17 @@ public class UserAnswersController {
 	@ApiOperation(value = "开始答题", response = RestBean.class)
 	@ApiImplicitParam(paramType = "header", dataType = "String", name = AuthConstant.TOKEN, value = "鉴权token", required = true)
 	@RequestMapping(value = "/startAnswer", method = { RequestMethod.POST })
-	public RestBean startAnswer(@RequestParam("evaluationUserCode") String evaluationUserCode) {
+	public RestBean startAnswer(@RequestParam("evaluationUserCode") String evaluationUserCode,
+			@RequestParam("productCode") String productCode) {
 		if (ObjectUtils.isEmpty(evaluationUserCode)) {
 			return RestBean.error(RestCode.DEFAULT_PARAMS_ERROR);
 		}
-		QuestionAllBean allbean = userAnswersService.getQuestion(evaluationUserCode);
+		if (ObjectUtils.isEmpty(productCode)) {
+			return RestBean.error(RestCode.DEFAULT_PARAMS_ERROR);
+		}
+
+		// 获取需要答的题目
+		QuestionAllBean allbean = userAnswersService.getQuestion(evaluationUserCode, productCode);
 		if (allbean == null) {
 			return RestBean.ok();
 		}

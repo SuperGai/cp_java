@@ -91,6 +91,13 @@ public class QuestionOptionsBean implements Serializable {
     private Long divisorValue;
 
     /**
+     * 因子
+     */
+    @ExcelField
+    @ApiModelProperty(value = "因子")
+    private String divisorCode;
+    
+    /**
      * 题目选项表 唯一标识 集合
      */
     @ApiModelProperty(value = "题目选项表 唯一标识 集合")

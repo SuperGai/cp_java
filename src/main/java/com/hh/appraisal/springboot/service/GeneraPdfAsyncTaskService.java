@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -30,7 +29,6 @@ import com.hh.appraisal.springboot.dao.UserAnswersMapper;
 import com.hh.appraisal.springboot.entity.EvaluatoionCode;
 import com.hh.appraisal.springboot.entity.EvaluatoionUser;
 import com.hh.appraisal.springboot.utils.WordToPdf;
-
 
 @Service
 //生成PDF线程类
@@ -61,8 +59,8 @@ public class GeneraPdfAsyncTaskService {
 		EvaluatoionUser evaluatoionUser = evaluatoionUserService
 				.getOne(new QueryWrapper<EvaluatoionUser>().eq("EVALUATOION_CODE", evaluationUserCode));
 		evaluatoionUser.setIsComplete("Y");
-		//答题时间
-		long spendTime=userAnswersMapper.getSpendTime(evaluationUserCode);
+		// 答题时间
+		long spendTime = userAnswersMapper.getAllProductSpendTime(evaluationUserCode);
 		evaluatoionUser.setSpendTime(spendTime);
 		evaluatoionUserService.saveOrUpdate(evaluatoionUser);
 		String strDateFormat = "yyyy-MM-dd";
@@ -72,8 +70,8 @@ public class GeneraPdfAsyncTaskService {
 		// 获取logo地址
 		EvaluatoionCode evaluatoionCode = evaluatoionCodeMapper
 				.selectOne(new QueryWrapper<EvaluatoionCode>().eq("evaluatoion_Code", evaluationUserCode));
-		SchoolBean school= schoolService.findByCode(evaluatoionCode.getShoolCode());
-		//用户个人信息
+		SchoolBean school = schoolService.findByCode(evaluatoionCode.getShoolCode());
+		// 用户个人信息
 		// 替换文本
 		Map<String, String> textMap = new HashMap<String, String>();
 		for (String key : json.keySet()) {
@@ -102,16 +100,16 @@ public class GeneraPdfAsyncTaskService {
 		fldNameArr.add("item2");
 		// 数据集合
 		List<Map<String, String>> listItemsByType = new ArrayList<Map<String, String>>();
-		JSONArray items=new JSONArray();
+		JSONArray items = new JSONArray();
 		for (int i = 0; i < divisorAverageBean.size(); i++) {
 			DivisorAverageBean bean = divisorAverageBean.get(i);
 			// 第一行数据
 			Map<String, String> base = new HashMap<String, String>();
 			base.put("item1", bean.getDivisorName());
 			base.put("item2", bean.getDivisorAverag() + "");
-			JSONObject item=new JSONObject();
+			JSONObject item = new JSONObject();
 			item.put("key", bean.getDivisorName());
-			item.put("value",bean.getDivisorAverag());
+			item.put("value", bean.getDivisorAverag());
 			items.add(item);
 			listItemsByType.add(base);
 		}
@@ -122,12 +120,12 @@ public class GeneraPdfAsyncTaskService {
 		String reportName = "中学生心理健康测评报告-" + evaluatoionUser.getName() + "-" + evaluatoionUser.getEvaluatoionCode();
 		String wordUrl = fileConfig.reportOutFolder + reportName + ".docx";
 		String pdfUrl = fileConfig.reportOutFolder + reportName + ".pdf";
-		String imageURL=fileConfig.reportOutFolder + reportName + ".png";
-		String xlsModel=fileConfig.reportOutFolder +"/model.xlsx";
-		String xlsOutPath=fileConfig.reportOutFolder  + reportName + ".xlsx";
+		String imageURL = fileConfig.reportOutFolder + reportName + ".png";
+		String xlsModel = fileConfig.reportOutFolder + "/model.xlsx";
+		String xlsOutPath = fileConfig.reportOutFolder + reportName + ".xlsx";
 		imgMap.put("整体测评情况图示参照下图表替换位置", imageURL);
-		//处理EXCEL
-		PoiWordTools.dealExcel(xlsModel, xlsOutPath,items);
+		// 处理EXCEL
+		PoiWordTools.dealExcel(xlsModel, xlsOutPath, items);
 		WordToPdf.xls2image(xlsOutPath, imageURL);
 		PoiWordTools.replaceAll(doc, logo, titleArr, fldNameArr, listItemsByType, textMap, imgMap, divisors);
 		// 保存结果文件
@@ -139,11 +137,10 @@ public class GeneraPdfAsyncTaskService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		evaluatoionUser.setReportUrl("file/report/" + reportName+".pdf");
+		evaluatoionUser.setReportUrl("file/report/" + reportName + ".pdf");
 		evaluatoionUser.setUrl(pdfUrl);
 		evaluatoionUserService.saveOrUpdate(evaluatoionUser);
-		
 
 	}
-	
+
 }
