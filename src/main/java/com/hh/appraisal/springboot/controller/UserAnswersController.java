@@ -11,7 +11,9 @@ import com.hh.appraisal.springboot.core.annotation.NoPermission;
 import com.hh.appraisal.springboot.core.baen.PageBean;
 import com.hh.appraisal.springboot.core.baen.RestBean;
 import com.hh.appraisal.springboot.core.constant.RestCode;
+import com.hh.appraisal.springboot.dao.UserAnswersMapper;
 import com.hh.appraisal.springboot.entity.EvaluatoionOrder;
+import com.hh.appraisal.springboot.entity.EvaluatoionUser;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +39,7 @@ import com.hh.appraisal.springboot.bean.QuestionAllBean;
 import com.hh.appraisal.springboot.bean.UserAnswersBean;
 import com.hh.appraisal.springboot.constant.CpStatus;
 import com.hh.appraisal.springboot.service.EvaluatoionOrderService;
+import com.hh.appraisal.springboot.service.EvaluatoionUserService;
 import com.hh.appraisal.springboot.service.GeneraPdfAsyncTaskService;
 import com.hh.appraisal.springboot.service.GeneraPdfAsyncTaskService3;
 import com.hh.appraisal.springboot.service.ProductService;
@@ -64,6 +69,12 @@ public class UserAnswersController {
 
 	@Autowired
 	ProductService productService;
+
+	@Autowired
+	EvaluatoionUserService evaluatoionUserService;
+
+	@Autowired
+	UserAnswersMapper userAnswersMapper;
 
 	public UserAnswersController(UserAnswersService userAnswersService,
 			EvaluatoionOrderService evaluatoionOrderService) {
@@ -260,6 +271,8 @@ public class UserAnswersController {
 		EvaluatoionOrderBean restBean = EvaluatoionOrderBean.builder().build();
 		BeanUtils.copyProperties(order, restBean);
 		restBean.setStatus(CpStatus.COMPLETE);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		restBean.setEndDate(sdf.format(new Date()));
 		evaluatoionOrderService.updateByCode(restBean);
 
 		// 获取待答题的订单清单,如果不为空开始下一次答题
@@ -267,6 +280,16 @@ public class UserAnswersController {
 		queryOrderBean.setEvaluatoionCode(evaluationUserCode);
 		queryOrderBean.setStatus("!" + CpStatus.COMPLETE);
 		List<EvaluatoionOrderBean> orderList = evaluatoionOrderService.findList(queryOrderBean);
+
+//		//是否完成答题改成是
+		EvaluatoionUser evaluatoionUser = evaluatoionUserService
+				.getOne(new QueryWrapper<EvaluatoionUser>().eq("EVALUATOION_CODE", evaluationUserCode));
+		evaluatoionUser.setIsComplete("Y");
+		// 答题时间
+		long spendTime = userAnswersMapper.getAllProductSpendTime(evaluationUserCode);
+		evaluatoionUser.setSpendTime(spendTime);
+		evaluatoionUserService.saveOrUpdate(evaluatoionUser);
+
 		// 不存在未完成的题目代表已经完成全部答题
 		if (orderList == null || orderList.size() == 0) {
 			ProductBean productBean = productService.findByCode(productCode);
@@ -279,6 +302,8 @@ public class UserAnswersController {
 					e.printStackTrace();
 				}
 			} else {
+				
+				
 
 			}
 		} else {

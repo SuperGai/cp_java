@@ -31,7 +31,7 @@ import com.hh.appraisal.springboot.core.constant.AuthConstant;
 import org.springframework.web.bind.annotation.RequestMethod;
 import com.hh.appraisal.springboot.bean.EvaluatoionUserBean;
 import com.hh.appraisal.springboot.bean.QuestionBean;
-import com.hh.appraisal.springboot.bean.ReportBean;
+import com.hh.appraisal.springboot.bean.ReportPanelBean;
 import com.hh.appraisal.springboot.service.EvaluatoionUserService;
 import com.hh.appraisal.springboot.service.UserAnswersService;
 import com.hh.appraisal.springboot.utils.ZipUtils;
@@ -232,7 +232,7 @@ public class EvaluatoionUserController {
 			@ApiImplicitParam(dataType = "String", name = "code", value = "唯一标识", required = true) })
 	@RequestMapping(value = "/report", method = { RequestMethod.POST })
 	public RestBean report() {
-		ReportBean reportBean=evaluatoionUserMapper.getReport();
+		ReportPanelBean reportBean=evaluatoionUserMapper.getReport();
 		return RestBean.ok(reportBean);
 	}
 	

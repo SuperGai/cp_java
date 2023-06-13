@@ -12,6 +12,7 @@ import com.hh.appraisal.springboot.core.annotation.NoPermission;
 import com.hh.appraisal.springboot.core.baen.PageBean;
 import com.hh.appraisal.springboot.core.baen.RestBean;
 import com.hh.appraisal.springboot.core.constant.RestCode;
+import com.hh.appraisal.springboot.entity.Divisor;
 import com.hh.appraisal.springboot.entity.Question;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.hh.appraisal.springboot.bean.QuestionBean;
 import com.hh.appraisal.springboot.bean.QuestionOptionsBean;
+import com.hh.appraisal.springboot.service.DivisorService;
 import com.hh.appraisal.springboot.service.QuestionOptionsService;
 import com.hh.appraisal.springboot.service.QuestionService;
 import com.wuwenze.poi.ExcelKit;
@@ -57,6 +59,9 @@ public class QuestionOptionsController {
 	@Autowired
 	private QuestionService questionService;
 
+	@Autowired
+	private DivisorService divisorService;
+
 	public QuestionOptionsController(QuestionOptionsService questionOptionsService) {
 		this.questionOptionsService = questionOptionsService;
 	}
@@ -77,12 +82,11 @@ public class QuestionOptionsController {
 			return RestBean.ok(new Page<>());
 		}
 
-		
 		// 处理列表逻辑....
 
 		return RestBean.ok(page);
 	}
-	
+
 	/**
 	 * 根据问题查选项
 	 * 
@@ -95,7 +99,7 @@ public class QuestionOptionsController {
 	@RequestMapping(value = "/listByQuestion", method = { RequestMethod.POST })
 	public RestBean listByQuestion(QuestionOptionsBean bean) {
 		List<QuestionOptionsBean> list = questionOptionsService.findList(bean);
-		if (list == null ||list.size()==0) {
+		if (list == null || list.size() == 0) {
 			return RestBean.ok();
 		}
 		// 处理列表逻辑....
@@ -188,6 +192,7 @@ public class QuestionOptionsController {
 
 	/**
 	 * 导入问题选项
+	 * 
 	 * @param file
 	 * @return
 	 * @throws IOException
@@ -204,21 +209,40 @@ public class QuestionOptionsController {
 					public void onSuccess(int sheetIndex, int rowIndex, QuestionOptionsBean entity) {
 						Question question = questionService
 								.getOne(new QueryWrapper<Question>().eq("QUESTION_CODE", entity.getQuestionCode()));
-						if(question==null) {
-							List<ExcelErrorField> errorFields=new ArrayList<ExcelErrorField>();
-							ExcelErrorField filed=new ExcelErrorField();
-							filed.setColumn("题目标识");
+						Map<String, Object> errormap = new HashMap<String, Object>();
+						List<ExcelErrorField> errorFields = new ArrayList<ExcelErrorField>();
+						boolean isFair = false;
+						if (question == null) {
+							isFair = true;
+							ExcelErrorField filed = new ExcelErrorField();
 							filed.setColumn("questionCode");
 							filed.setErrorMessage("题目标识有误");
-							Map<String, Object> errormap = new HashMap<String, Object>();
 							errorFields.add(filed);
+						} else {
+							entity.setQuestionCode(question.getCode());
+						}
+						if (ObjectUtils.isNotEmpty(entity.getDivisorCode())) {
+							Divisor divisor = divisorService
+									.getOne(new QueryWrapper<Divisor>().eq("DIVISOR_NAME", entity.getDivisorCode()));
+							if (divisor == null) {
+								isFair = true;
+								ExcelErrorField filed = new ExcelErrorField();
+								filed.setColumn("divisorCode");
+								filed.setErrorMessage("指标库有误");
+								errorFields.add(filed);
+							} else {
+								entity.setDivisorCode(divisor.getCode());
+							}
+						}
+						if (isFair) {
 							errormap.put("sheetIndex", sheetIndex);
 							errormap.put("rowIndex", rowIndex);
 							errormap.put("errorFields", errorFields);
+							errorList.add(errormap);
+						} else {
+							successList.add(entity); // 单行读取成功，加入入库队列。
+							questionOptionsService.add(entity);
 						}
-						entity.setQuestionCode(question.getCode());
-						successList.add(entity); // 单行读取成功，加入入库队列。
-						questionOptionsService.add(entity);
 					}
 
 					@Override

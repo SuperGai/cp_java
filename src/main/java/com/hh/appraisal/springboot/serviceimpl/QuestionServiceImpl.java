@@ -63,8 +63,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
 	@Autowired
 	private ProductService productService;
-	
-	
 
 	public QuestionServiceImpl(QuestionMapper questionMapper) {
 		this.questionMapper = questionMapper;
@@ -85,7 +83,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 		BeanUtils.copyProperties(sourceList.get(0), restBean);
 		return restBean;
 	}
-	
 
 	@Override
 	public List<QuestionBean> findByCodeList(List<String> codeList) {
@@ -154,15 +151,17 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 		Question source = new Question();
 		Product product = productService.getOne(new QueryWrapper<Product>().eq("product_Name", bean.getQuestionBank()));
 		if (ObjectUtils.isEmpty(product)) {
-			 throw new Exception("产品名称有误!");
+			throw new Exception("产品名称有误!");
 		}
 		bean.setQuestionBank(product.getCode());
-		Divisor divisor = divisorService.getOne(new QueryWrapper<Divisor>().eq("divisor_Name", bean.getDivisorCode())
-				.or().eq("divisor_Desc", bean.getDivisorCode()));
-		if(ObjectUtils.isEmpty(divisor)) {
-			 throw new Exception("指标库填写有误!");
+		if (ObjectUtils.isNotEmpty(bean.getDivisorCode())) {
+			Divisor divisor = divisorService.getOne(new QueryWrapper<Divisor>()
+					.eq("divisor_Name", bean.getDivisorCode()).or().eq("divisor_Desc", bean.getDivisorCode()));
+			if (ObjectUtils.isEmpty(divisor)) {
+				throw new Exception("指标库填写有误!");
+			}
+			bean.setDivisorCode(divisor.getCode());
 		}
-		bean.setDivisorCode(divisor.getCode());
 		BeanUtils.copyProperties(bean, source);
 		questionMapper.insert(source);
 		BeanUtils.copyProperties(source, bean);
@@ -239,17 +238,17 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 //				wrapper.eq(Question::getQuestionBank, bean.getQuestionBank());
 			}
 			if (!ObjectUtils.isEmpty(bean.getQuestionCode())) {
-				wrapper.like(Question::getQuestionCode,bean.getQuestionCode());
+				wrapper.like(Question::getQuestionCode, bean.getQuestionCode());
 //				wrapper.apply("question.question_code= {0}", bean.getQuestionCode());
 //				wrapper.eq(Question::getQuestionCode, bean.getQuestionCode());
 			}
 			if (!ObjectUtils.isEmpty(bean.getQuestionEh())) {
-				wrapper.like(Question::getQuestionEh,bean.getQuestionEh());
+				wrapper.like(Question::getQuestionEh, bean.getQuestionEh());
 //				wrapper.apply("question.question_en={0}", bean.getQuestionEh());
 //				wrapper.eq(Question::getQuestionEh, bean.getQuestionEh());
 			}
 			if (!ObjectUtils.isEmpty(bean.getQuestionZh())) {
-				wrapper.like(Question::getQuestionZh,bean.getQuestionZh());
+				wrapper.like(Question::getQuestionZh, bean.getQuestionZh());
 //				wrapper.apply("question.question_zh={0}", bean.getQuestionZh());
 //				wrapper.eq(Question::getQuestionEh, bean.getQuestionZh());
 			}
@@ -257,7 +256,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 		}
 		return wrapper;
 	}
-
 
 //	@Override
 //	public List<Question> findList2(QuestionBean bean) {

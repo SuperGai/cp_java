@@ -12,46 +12,90 @@ import java.lang.Integer;
 import java.util.Date;
 
 /**
- * 报表类
+ * 报告Bean
+ * 用于控制层展示数据
+ * @see com.hh.appraisal.springboot.entity.Report
  * @author gaigai
- * @date 2021/06/26
+ * @date 2023/06/02
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel(description = "报表类")
+@ApiModel(description = "报告实体")
 public class ReportBean implements Serializable {
 
     /**
-     * 参加测评人数
+     * 主键
      */
-    @ApiModelProperty(value = "参加测评人数")
-    private int joinNum;
+    @ApiModelProperty(value = "主键")
+    private String code;
+
+    /**
+     * 数据是否有效
+     */
+    @ApiModelProperty(value = "数据是否有效")
+    private Integer valid;
+
+    /**
+     * 记录创建时间
+     */
+    @ApiModelProperty(value = "记录创建时间")
+    private Date createTime;
+
+    /**
+     * 记录更新时间
+     */
+    @ApiModelProperty(value = "记录更新时间")
+    private Date updateTime;
+
+    /**
+     * 报告名称
+     */
+    @ApiModelProperty(value = "报告名称")
+    private String reportName;
+
+    /**
+     * 产品名称
+     */
+    @ApiModelProperty(value = "产品名称")
+    private String productCode;
     
     /**
-     * 已完成人数
+     * 产品名称
      */
-    @ApiModelProperty(value = "已完成人数")
-    private int completeNum;
+    @ApiModelProperty(value = "产品名称")
+    private List<String> productCodeList;
+    
+
+    /**
+     * 报告简介
+     */
+    @ApiModelProperty(value = "报告简介")
+    private String reportInfo;
+
+    /**
+     * 阅读建议
+     */
+    @ApiModelProperty(value = "阅读建议")
+    private String reportReadSuggest;
+
+    /**
+     * 关于报告
+     */
+    @ApiModelProperty(value = "关于报告")
+    private String aboutReport;
+
+    /**
+     * 报告 唯一标识 集合
+     */
+    @ApiModelProperty(value = "报告 唯一标识 集合")
+    private List<String> reportCodeList;
     
     /**
-     * 未完成人数
+     * 报告配置
      */
-    @ApiModelProperty(value = "未完成人数")
-    private int uncompletedNum;
-    
-    /**
-     * 当月测评总数
-     */
-    @ApiModelProperty(value = "当月测评总数")
-    private int monthNum;
-    
-    
-    /**
-     * 当月测评总数
-     */
-    @ApiModelProperty(value = "年度测评总数")
-    private int yearNum;
+    @ApiModelProperty(value = "报告配置")
+    private List<ReportConfigCatBean> ReportConfigCatList;
 
 }

@@ -18,8 +18,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -260,21 +264,25 @@ public class UserAnswersServiceImpl extends ServiceImpl<UserAnswersMapper, UserA
 		// TODO Auto-generated method stub
 		UserAnswersBean bean = new UserAnswersBean();
 		bean.setEvaluationUserCode(evaluationUserCode);
+		bean.setProductCode(productCode);	
 		ProductBean product = productService.findByCode(productCode);
 		List<UserAnswersBean> list = findList(bean);
 		if (list == null || list.size() == 0) {
-			//获取当前测评的订单,更新成为进行中
-			EvaluatoionOrder order=evaluatoionOrderService.getOne(new QueryWrapper<EvaluatoionOrder>().eq("product_Code", productCode).eq("evaluatoion_code", evaluationUserCode));
+			// 获取当前测评的订单,更新成为进行中
+			EvaluatoionOrder order = evaluatoionOrderService.getOne(new QueryWrapper<EvaluatoionOrder>()
+					.eq("product_Code", productCode).eq("evaluatoion_code", evaluationUserCode));
 			EvaluatoionOrderBean restBean = EvaluatoionOrderBean.builder().build();
 			BeanUtils.copyProperties(order, restBean);
 			restBean.setStatus(CpStatus.ING);
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			restBean.setStartDate(sdf.format(new Date()));
 			evaluatoionOrderService.updateByCode(restBean);
-			//查询题目
+			// 查询题目
 			QuestionBean question = new QuestionBean();
 			question.setQuestionBank(productCode);
 			List<QuestionBean> questionList = questionService.findList(question);
 			int numbers[] = NumberUtils.randomArray(1, product.getQuestionNum(), product.getQuestionNum());
-			for (int i = 0; i < questionList.size(); i++) {
+			for (int i = 0; i < numbers.length; i++) {
 				QuestionBean questionBean = questionList.get(i);
 				UserAnswersBean userAnswersBean = new UserAnswersBean();
 				userAnswersBean.setEvaluationUserCode(evaluationUserCode);
@@ -290,8 +298,15 @@ public class UserAnswersServiceImpl extends ServiceImpl<UserAnswersMapper, UserA
 //			(new QueryWrapper<QuestionOptions>().eq("QUESTION_CODE", allbean.getQuestionCode()));
 			QuestionOptionsBean questionOptionsBean = new QuestionOptionsBean();
 			questionOptionsBean.setQuestionCode(allbean.getQuestionCode());
-			List<QuestionOptionsBean> options = questionOptionsService.findList(questionOptionsBean);
-			allbean.setQuestionOptionsBean(options);
+			// 只有不为填空题时，才返回选项
+			if (!allbean.getQuestionType().equals("INPUT")) {
+				List<QuestionOptionsBean> options = questionOptionsService.findList(questionOptionsBean);
+				for (Iterator iterator = options.iterator(); iterator.hasNext();) {
+					QuestionOptionsBean questionOptions = (QuestionOptionsBean) iterator.next();
+					questionOptions.setDivisorValue(null);
+				}
+				allbean.setQuestionOptionsBean(options);
+			}
 			return allbean;
 		} else {
 			int minNum = userAnswersMapper.getMinUnCompleteNo(evaluationUserCode, productCode);
@@ -303,8 +318,15 @@ public class UserAnswersServiceImpl extends ServiceImpl<UserAnswersMapper, UserA
 			allbean.setAnswerTime(product.getAnswerTime());
 			QuestionOptionsBean questionOptionsBean = new QuestionOptionsBean();
 			questionOptionsBean.setQuestionCode(allbean.getQuestionCode());
-			List<QuestionOptionsBean> options = questionOptionsService.findList(questionOptionsBean);
-			allbean.setQuestionOptionsBean(options);
+			// 只有不为填空题时，才返回选项
+			if (!allbean.getQuestionType().equals("INPUT")) {
+				List<QuestionOptionsBean> options = questionOptionsService.findList(questionOptionsBean);
+				for (Iterator iterator = options.iterator(); iterator.hasNext();) {
+					QuestionOptionsBean questionOptions = (QuestionOptionsBean) iterator.next();
+					questionOptions.setDivisorValue(null);
+				}
+				allbean.setQuestionOptionsBean(options);
+			}
 			return allbean;
 		}
 	}

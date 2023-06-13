@@ -37,6 +37,12 @@ public class EvaluatoionOrder extends BasicEntity {
     private String evaluatoionCode;
 
     /**
+     * 测评码Code（关联测评码的主键）
+     */
+    @ApiModelProperty(value = "测评码Code")
+    private String evaluatoionCodeCode;
+    
+    /**
      * 开始日期
      */
     @EntityDoc(note = "开始日期")

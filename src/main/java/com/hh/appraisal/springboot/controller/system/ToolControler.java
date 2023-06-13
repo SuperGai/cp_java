@@ -6,15 +6,8 @@ import com.hh.appraisal.springboot.core.baen.RestBean;
 import com.hh.appraisal.springboot.core.config.CodeGenerateConfig;
 import com.hh.appraisal.springboot.core.constant.RestCode;
 import com.hh.appraisal.springboot.core.utils.CodeGenerateUtil;
-import com.hh.appraisal.springboot.entity.DivisorWithQues;
-import com.hh.appraisal.springboot.entity.Product;
-import com.hh.appraisal.springboot.entity.ProductItem;
-import com.hh.appraisal.springboot.entity.Question;
-import com.hh.appraisal.springboot.entity.UserAnswers;
-import com.hh.appraisal.springboot.entity.WxMiniAppUser;
 import com.hh.appraisal.springboot.service.system.SysApiService;
 import com.hh.appraisal.springboot.service.system.SysFunctionService;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,7 +43,7 @@ public class ToolControler {
     @NoPermission(noLogin = true)
     @RequestMapping("/codeGenerate")
     public RestBean codeGenerate(Boolean needSqlInsert){
-    	needSqlInsert=true;
+//    	needSqlInsert=true;
         /**
          * 生成相关代码以及实体类建表语句
          * 该方法生成文件时，遇到重名文件，不会执行覆盖，而是跳过
@@ -61,7 +54,8 @@ public class ToolControler {
              * 如果不添加任何类，工具类将处理扫描到的全部实体类(除系统实体类以外)
              * 下面的WxMiniAppUser为案例，系统已有
              */
-        	
+        	add("com.hh.appraisal.springboot.entity.Report");
+//        	add("com.hh.appraisal.springboot.entity.ReportConfig");
         }});
         if(RestCode.DEFAULT_SUCCESS.getCode() != genRest.getCode()){
             log.error("生成代码失败: " + genRest);

@@ -40,9 +40,15 @@ public class EvaluatoionOrderBean implements Serializable {
     /**
      * 产品Code
      */
+    @ApiModelProperty(value = "产品")
+    private String productCode;
+    
+    /**
+     * 产品名称
+     */
     @ExcelField("产品名称")
     @ApiModelProperty(value = "产品名称")
-    private String productCode;
+    private String productName;
     
     /**
      * 测评码
@@ -50,6 +56,13 @@ public class EvaluatoionOrderBean implements Serializable {
     @ExcelField("测评码")
     @ApiModelProperty(value = "测评码")
     private String evaluatoionCode;
+    
+    /**
+     * 测评码Code（关联测评码的主键）
+     */
+    @ApiModelProperty(value = "测评码Code")
+    private String evaluatoionCodeCode;
+    
 
     /**
      * 开始日期

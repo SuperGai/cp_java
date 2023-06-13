@@ -94,7 +94,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
     @Override
     public List<SysDictBean> findList(SysDictBean bean){
         LambdaQueryWrapper<SysDict> wrapper = createWrapper(bean);
-
+        wrapper.orderByAsc(SysDict::getSort);
         // 分页查询
         List<SysDict> list = dictMapper.selectList(wrapper);
         if(CollectionUtils.isEmpty(list)) {

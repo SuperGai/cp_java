@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
-import com.hh.appraisal.springboot.bean.ReportBean;
+import com.hh.appraisal.springboot.bean.ReportPanelBean;
 import com.hh.appraisal.springboot.entity.EvaluatoionUser;
 
 /**
@@ -22,7 +22,7 @@ public interface EvaluatoionUserMapper extends BaseMapper<EvaluatoionUser> {
 			+ "	( SELECT count(*)+ 6000 AS join_num FROM evaluatoion_user ) AS DD,"
 			+ "	( SELECT count(*)+ 6000 AS complete_num FROM evaluatoion_user WHERE evaluatoion_user.is_complete = 'Y' ) AS EE,"
 			+ "	( SELECT count(*) AS uncompleted_num FROM evaluatoion_user WHERE evaluatoion_user.is_complete = 'N' OR evaluatoion_user.is_complete IS NULL ) AS FF")
-	ReportBean getReport();
+	ReportPanelBean getReport();
 	
 	
 }

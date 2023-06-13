@@ -148,6 +148,7 @@ public class EvaluatoionCodeServiceImpl extends ServiceImpl<EvaluatoionCodeMappe
 			String productCode = (String) iterator.next();
 			EvaluatoionOrderBean orderBean=new EvaluatoionOrderBean();
 			orderBean.setProductCode(productCode);
+			orderBean.setEvaluatoionCodeCode(bean.getCode());
 			orderBean.setEvaluatoionCode(code);
 			orderBean.setStatus(CpStatus.INIT);
 			evaluatoionOrderService.add(orderBean);
@@ -261,6 +262,7 @@ public class EvaluatoionCodeServiceImpl extends ServiceImpl<EvaluatoionCodeMappe
 				String productCode = (String) iterator.next();
 				EvaluatoionOrderBean orderBean=new EvaluatoionOrderBean();
 				orderBean.setProductCode(productCode);
+				orderBean.setEvaluatoionCodeCode(bean.getCode());
 				orderBean.setEvaluatoionCode(code);
 				orderBean.setStatus(CpStatus.INIT);
 				evaluatoionOrderService.add(orderBean);

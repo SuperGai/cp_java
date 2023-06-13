@@ -120,57 +120,57 @@ public class PoiWordTools {
 //		doExcel(doc,items);
 	}
 
-	/**
-	 * 处理图表
-	 *
-	 * @param doc
-	 * @throws IOException
-	 */
-	public static void doExcel(XWPFDocument doc) throws IOException {
-		/** ----------------------------处理图表------------------------------------ **/
-		// 获取word模板中的所有图表元素，用map存放
-		// 为什么不用list保存：查看doc.getRelations()的源码可知，源码中使用了hashMap读取文档图表元素，
-		// 对relations变量进行打印后发现，图表顺序和文档中的顺序不一致，也就是说relations的图表顺序不是文档中从上到下的顺序
-		Map<String, POIXMLDocumentPart> chartsMap = new HashMap<String, POIXMLDocumentPart>();
-		// 动态刷新图表
-		List<POIXMLDocumentPart> relations = doc.getRelations();
-		for (POIXMLDocumentPart poixmlDocumentPart : relations) {
-			if (poixmlDocumentPart.toString().contains("/word/embeddings/Microsoft_Excel____1.xlsx")) {
-				boolean result = true;
-				File file = new File("/Users/gaigai/Documents/work/项目/精派咨询/model.xlsx");
-				InputStream inp = new FileInputStream(file);
-				Workbook wb = new XSSFWorkbook(inp);
-				Sheet sheet = wb.getSheetAt(0);
-				int rowNum = sheet.getLastRowNum();
-
-				for (int i = 3; i < rowNum; i++) {
-					Row row = sheet.getRow(i);
-					Cell c = row.getCell(4);
-					c.setCellValue(2);
-				}
-				OutputStream xlsOut = poixmlDocumentPart.getPackagePart().getOutputStream();
-				try {
-					wb.write(xlsOut);
-					xlsOut.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				} finally {
-					if (wb != null) {
-						try {
-							wb.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-							result = false;
-						}
-					}
-				}
-
-			}
-		}
-
-		System.out.println("\n图表数量：" + chartsMap.size() + "\n");
-
-	}
+//	/**
+//	 * 处理图表
+//	 *
+//	 * @param doc
+//	 * @throws IOException
+//	 */
+//	public static void doExcel(XWPFDocument doc) throws IOException {
+//		/** ----------------------------处理图表------------------------------------ **/
+//		// 获取word模板中的所有图表元素，用map存放
+//		// 为什么不用list保存：查看doc.getRelations()的源码可知，源码中使用了hashMap读取文档图表元素，
+//		// 对relations变量进行打印后发现，图表顺序和文档中的顺序不一致，也就是说relations的图表顺序不是文档中从上到下的顺序
+//		Map<String, POIXMLDocumentPart> chartsMap = new HashMap<String, POIXMLDocumentPart>();
+//		// 动态刷新图表
+//		List<POIXMLDocumentPart> relations = doc.getRelations();
+//		for (POIXMLDocumentPart poixmlDocumentPart : relations) {
+//			if (poixmlDocumentPart.toString().contains("/word/embeddings/Microsoft_Excel____1.xlsx")) {
+//				boolean result = true;
+//				File file = new File("/Users/gaigai/Documents/work/项目/精派咨询/model.xlsx");
+//				InputStream inp = new FileInputStream(file);
+//				Workbook wb = new XSSFWorkbook(inp);
+//				Sheet sheet = wb.getSheetAt(0);
+//				int rowNum = sheet.getLastRowNum();
+//
+//				for (int i = 3; i < rowNum; i++) {
+//					Row row = sheet.getRow(i);
+//					Cell c = row.getCell(4);
+//					c.setCellValue(2);
+//				}
+//				OutputStream xlsOut = poixmlDocumentPart.getPackagePart().getOutputStream();
+//				try {
+//					wb.write(xlsOut);
+//					xlsOut.close();
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				} finally {
+//					if (wb != null) {
+//						try {
+//							wb.close();
+//						} catch (IOException e) {
+//							e.printStackTrace();
+//							result = false;
+//						}
+//					}
+//				}
+//
+//			}
+//		}
+//
+//		System.out.println("\n图表数量：" + chartsMap.size() + "\n");
+//
+//	}
 
 	/**
 	 * 读取文档中表格
@@ -350,7 +350,6 @@ public class PoiWordTools {
 		Workbook wb = new XSSFWorkbook(inp);
 		Sheet sheet = wb.getSheetAt(0);
 		int rowNum = sheet.getPhysicalNumberOfRows();
-		System.out.println("rowNum:"+rowNum);
 		for (int i = 2; i < rowNum; i++) {
 			Row row = sheet.getRow(i);
 			// 设置实际值
@@ -358,7 +357,6 @@ public class PoiWordTools {
 			String key = obj.getString("key");
 			double value = obj.getDouble("value");
 			Cell c1 = row.getCell(2);
-			System.out.println("c1:"+c1.getStringCellValue());
 			c1.setCellValue(key);
 			Cell c2 = row.getCell(3);
 			c2.setCellValue(value);

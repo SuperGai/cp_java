@@ -57,7 +57,7 @@ public class Product extends BasicEntity {
 	 */
 	@EntityDoc(note = "答题时间")
 	private int answerTime;
-
+	
 	// add my gaigai 2023-04-26 
 	/**
 	 * 小程序的答题指导语

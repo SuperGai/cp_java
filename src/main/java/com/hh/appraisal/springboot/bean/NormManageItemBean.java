@@ -12,18 +12,18 @@ import java.lang.Integer;
 import java.util.Date;
 
 /**
- * 因子Bean
+ * 常模管理明细Bean
  * 用于控制层展示数据
- * @see com.hh.appraisal.springboot.entity.Divisor
+ * @see com.hh.appraisal.springboot.entity.NormManageItem
  * @author gaigai
- * @date 2021/06/26
+ * @date 2023/06/02
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel(description = "因子实体")
-public class DivisorBean implements Serializable {
+@ApiModel(description = "常模管理明细实体")
+public class NormManageItemBean implements Serializable {
 
     /**
      * 主键
@@ -50,27 +50,27 @@ public class DivisorBean implements Serializable {
     private Date updateTime;
 
     /**
-     * 因子名称
+     * 常模主表
      */
-    @ApiModelProperty(value = "因子名称")
-    private String divisorName;
+    @ApiModelProperty(value = "常模主表")
+    private String normCode;
 
     /**
-     * 因子描述
+     * 等级
      */
-    @ApiModelProperty(value = "因子描述")
-    private String divisorDesc;
-    
-    /**
-     * 因子大类
-     */
-    @ApiModelProperty(value = "因子大类")
-    private String divisorCat;
+    @ApiModelProperty(value = "等级")
+    private String level;
 
     /**
-     * 因子 唯一标识 集合
+     * 分值
      */
-    @ApiModelProperty(value = "因子 唯一标识 集合")
-    private List<String> divisorCodeList;
+    @ApiModelProperty(value = "分值")
+    private String scores;
+
+    /**
+     * 常模管理明细 唯一标识 集合
+     */
+    @ApiModelProperty(value = "常模管理明细 唯一标识 集合")
+    private List<String> normManageItemCodeList;
 
 }

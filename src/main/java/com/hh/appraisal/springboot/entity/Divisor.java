@@ -39,5 +39,11 @@ public class Divisor extends BasicEntity {
      */
     @EntityDoc(note = "因子描述")
     private String divisorDesc;
+    
+    /**
+     * 因子大类
+     */
+    @EntityDoc(note = "因子大类")
+    private String divisorCat;
 
 }

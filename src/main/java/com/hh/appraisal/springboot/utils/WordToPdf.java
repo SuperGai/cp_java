@@ -14,6 +14,11 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import javax.imageio.ImageIO;
 
+/**
+ * word 转pdf
+ * @author gaigai
+ *
+ */
 public class WordToPdf {
 	private static InputStream license;
 
@@ -54,6 +59,11 @@ public class WordToPdf {
 		ImageIO.write(bufferedImage, "PNG", new File("/Users/gaigai/Documents/work/项目/精派咨询/2222.png"));
 	}
 
+	/**
+	 * 生成PDF(更新目录)
+	 * @param inPath
+	 * @param outPath
+	 */
 	public static void doc2pdf(String inPath, String outPath) {
 		if (!getLicense()) {
 			return;

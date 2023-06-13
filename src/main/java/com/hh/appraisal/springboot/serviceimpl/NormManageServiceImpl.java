@@ -18,60 +18,59 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.hh.appraisal.springboot.bean.DivisorBean;
-import com.hh.appraisal.springboot.entity.Divisor;
-import com.hh.appraisal.springboot.entity.EvaluatoionUser;
-import com.hh.appraisal.springboot.dao.DivisorMapper;
-import com.hh.appraisal.springboot.service.DivisorService;
+import com.hh.appraisal.springboot.bean.NormManageBean;
+import com.hh.appraisal.springboot.entity.NormManage;
+import com.hh.appraisal.springboot.dao.NormManageMapper;
+import com.hh.appraisal.springboot.service.NormManageService;
 
 /**
- * Divisor Service 实现类
+ * NormManage Service 实现类
  * @author gaigai
- * @date 2021/06/26
+ * @date 2023/06/02
  */
 @Slf4j
 @Service
-public class DivisorServiceImpl extends ServiceImpl<DivisorMapper, Divisor> implements DivisorService {
+public class NormManageServiceImpl extends ServiceImpl<NormManageMapper, NormManage> implements NormManageService {
 
-    private final DivisorMapper divisorMapper;
+    private final NormManageMapper normManageMapper;
 
-    public DivisorServiceImpl(DivisorMapper divisorMapper) {
-            this.divisorMapper = divisorMapper;
+    public NormManageServiceImpl(NormManageMapper normManageMapper) {
+            this.normManageMapper = normManageMapper;
     }
 
     @Override
-    public DivisorBean findByCode(String code){
+    public NormManageBean findByCode(String code){
         if(ObjectUtils.isEmpty(code)){
             return null;
         }
 
-        List<Divisor> sourceList = divisorMapper.selectList(
-                createWrapper(DivisorBean.builder().code(code).build())
+        List<NormManage> sourceList = normManageMapper.selectList(
+                createWrapper(NormManageBean.builder().code(code).build())
         );
         if(ObjectUtils.isEmpty(sourceList)){
             return null;
         }
 
-        DivisorBean restBean = DivisorBean.builder().build();
+        NormManageBean restBean = NormManageBean.builder().build();
         BeanUtils.copyProperties(sourceList.get(0), restBean);
         return restBean;
     }
 
     @Override
-    public List<DivisorBean> findByCodeList(List<String> codeList){
+    public List<NormManageBean> findByCodeList(List<String> codeList){
         if(CollectionUtils.isEmpty(codeList)) {
             return Collections.EMPTY_LIST;
         }
 
-        List<Divisor> sourceList = divisorMapper.selectList(
-                createWrapper(DivisorBean.builder().divisorCodeList(codeList).build())
+        List<NormManage> sourceList = normManageMapper.selectList(
+                createWrapper(NormManageBean.builder().normManageCodeList(codeList).build())
         );
         if(CollectionUtils.isEmpty(sourceList)) {
             return Collections.EMPTY_LIST;
         }
 
-        List<DivisorBean> restBeanList = sourceList.stream().map(v -> {
-            DivisorBean item = new DivisorBean();
+        List<NormManageBean> restBeanList = sourceList.stream().map(v -> {
+            NormManageBean item = new NormManageBean();
             BeanUtils.copyProperties(v,item);
             return item;
         }).collect(Collectors.toList());
@@ -79,14 +78,14 @@ public class DivisorServiceImpl extends ServiceImpl<DivisorMapper, Divisor> impl
     }
 
     @Override
-    public List<DivisorBean> findList(DivisorBean bean){
-        List<Divisor> list = divisorMapper.selectList(createWrapper(bean));
+    public List<NormManageBean> findList(NormManageBean bean){
+        List<NormManage> list = normManageMapper.selectList(createWrapper(bean));
         if(CollectionUtils.isEmpty(list)) {
             return Collections.EMPTY_LIST;
         }
 
-        List<DivisorBean> beanList = list.stream().map(item -> {
-            DivisorBean srcBean = new DivisorBean();
+        List<NormManageBean> beanList = list.stream().map(item -> {
+            NormManageBean srcBean = new NormManageBean();
             BeanUtils.copyProperties(item,srcBean);
             return srcBean;
         }).collect(Collectors.toList());
@@ -94,8 +93,8 @@ public class DivisorServiceImpl extends ServiceImpl<DivisorMapper, Divisor> impl
     }
 
     @Override
-    public Page<DivisorBean> findPage(DivisorBean bean, PageBean pageBean){
-        Page<Divisor> sourcePage = divisorMapper.selectPage(
+    public Page<NormManageBean> findPage(NormManageBean bean, PageBean pageBean){
+        Page<NormManage> sourcePage = normManageMapper.selectPage(
                 new Page<>(pageBean.getCurrent(),pageBean.getSize()),
                 createWrapper(bean)
         );
@@ -103,11 +102,11 @@ public class DivisorServiceImpl extends ServiceImpl<DivisorMapper, Divisor> impl
             return new Page<>();
         }
 
-        Page<DivisorBean> restPage = new Page<>();
+        Page<NormManageBean> restPage = new Page<>();
         BeanUtils.copyProperties(sourcePage, restPage,"records");
         restPage.setRecords(new ArrayList<>(sourcePage.getRecords().size()));
         sourcePage.getRecords().forEach(v -> {
-            DivisorBean itemBean = new DivisorBean();
+            NormManageBean itemBean = new NormManageBean();
             BeanUtils.copyProperties(v, itemBean);
             restPage.getRecords().add(itemBean);
         });
@@ -116,21 +115,21 @@ public class DivisorServiceImpl extends ServiceImpl<DivisorMapper, Divisor> impl
 
     @Transactional
     @Override
-    public DivisorBean add(DivisorBean bean){
-        Divisor source = new Divisor();
+    public NormManageBean add(NormManageBean bean){
+        NormManage source = new NormManage();
         BeanUtils.copyProperties(bean, source);
 
-        divisorMapper.insert(source);
+        normManageMapper.insert(source);
         BeanUtils.copyProperties(source, bean);
         return bean;
     }
 
     @Transactional
     @Override
-    public int updateByCode(DivisorBean bean) {
-        Divisor source = new Divisor();
+    public int updateByCode(NormManageBean bean) {
+        NormManage source = new NormManage();
         BeanUtils.copyProperties(bean,source);
-        return divisorMapper.updateById(source);
+        return normManageMapper.updateById(source);
     }
 
     @Transactional
@@ -140,10 +139,10 @@ public class DivisorServiceImpl extends ServiceImpl<DivisorMapper, Divisor> impl
             return 0;
         }
 
-        Divisor updateSource = new Divisor();
+        NormManage updateSource = new NormManage();
         updateSource.setCode(code);
         updateSource.setValid(DataValid.INVALID);
-        return divisorMapper.updateById(updateSource);
+        return normManageMapper.updateById(updateSource);
     }
 
     @Transactional
@@ -167,30 +166,29 @@ public class DivisorServiceImpl extends ServiceImpl<DivisorMapper, Divisor> impl
      * @param bean
      * @return
      */
-    private LambdaQueryWrapper createWrapper(DivisorBean bean){
-        LambdaQueryWrapper<Divisor> wrapper = Wrappers.lambdaQuery();
+    private LambdaQueryWrapper createWrapper(NormManageBean bean){
+        LambdaQueryWrapper<NormManage> wrapper = Wrappers.lambdaQuery();
         if(bean == null || bean.getValid() == null){
-            wrapper.eq(Divisor::getValid,DataValid.VALID);
+            wrapper.eq(NormManage::getValid,DataValid.VALID);
         }
 
         // 自定义条件
         if(bean != null) {
             if(bean.getValid() != null){
-                wrapper.eq(Divisor::getValid,bean.getValid());
+                wrapper.eq(NormManage::getValid,bean.getValid());
             }
             if(!ObjectUtils.isEmpty(bean.getCode())){
-                wrapper.eq(Divisor::getCode, bean.getCode());
+                wrapper.eq(NormManage::getCode, bean.getCode());
             }
-            if(CollectionUtils.isNotEmpty(bean.getDivisorCodeList())){
-                wrapper.in(Divisor::getCode, bean.getDivisorCodeList());
-            }if (!ObjectUtils.isEmpty(bean.getDivisorDesc())) {
-				wrapper.like(Divisor::getDivisorDesc,bean.getDivisorDesc());
-			}if (!ObjectUtils.isEmpty(bean.getDivisorName())) {
-				wrapper.like(Divisor::getDivisorName,bean.getDivisorName());
-			}if (!ObjectUtils.isEmpty(bean.getDivisorCat())) {
-				wrapper.like(Divisor::getDivisorCat,bean.getDivisorCat());
-			}
-
+            if(CollectionUtils.isNotEmpty(bean.getNormManageCodeList())){
+                wrapper.in(NormManage::getCode, bean.getNormManageCodeList());
+            }
+            if(!ObjectUtils.isEmpty(bean.getName())){
+                wrapper.like(NormManage::getName, bean.getName());
+            }
+            if(!ObjectUtils.isEmpty(bean.getNdesc())){
+                wrapper.like(NormManage::getNdesc, bean.getNdesc());
+            }
             // 编写条件逻辑....
 
         }

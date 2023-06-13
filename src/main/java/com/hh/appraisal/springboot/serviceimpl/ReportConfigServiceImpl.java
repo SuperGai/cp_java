@@ -18,60 +18,59 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.hh.appraisal.springboot.bean.DivisorBean;
-import com.hh.appraisal.springboot.entity.Divisor;
-import com.hh.appraisal.springboot.entity.EvaluatoionUser;
-import com.hh.appraisal.springboot.dao.DivisorMapper;
-import com.hh.appraisal.springboot.service.DivisorService;
+import com.hh.appraisal.springboot.bean.ReportConfigBean;
+import com.hh.appraisal.springboot.entity.ReportConfig;
+import com.hh.appraisal.springboot.dao.ReportConfigMapper;
+import com.hh.appraisal.springboot.service.ReportConfigService;
 
 /**
- * Divisor Service 实现类
+ * ReportConfig Service 实现类
  * @author gaigai
- * @date 2021/06/26
+ * @date 2023/06/02
  */
 @Slf4j
 @Service
-public class DivisorServiceImpl extends ServiceImpl<DivisorMapper, Divisor> implements DivisorService {
+public class ReportConfigServiceImpl extends ServiceImpl<ReportConfigMapper, ReportConfig> implements ReportConfigService {
 
-    private final DivisorMapper divisorMapper;
+    private final ReportConfigMapper reportConfigMapper;
 
-    public DivisorServiceImpl(DivisorMapper divisorMapper) {
-            this.divisorMapper = divisorMapper;
+    public ReportConfigServiceImpl(ReportConfigMapper reportConfigMapper) {
+            this.reportConfigMapper = reportConfigMapper;
     }
 
     @Override
-    public DivisorBean findByCode(String code){
+    public ReportConfigBean findByCode(String code){
         if(ObjectUtils.isEmpty(code)){
             return null;
         }
 
-        List<Divisor> sourceList = divisorMapper.selectList(
-                createWrapper(DivisorBean.builder().code(code).build())
+        List<ReportConfig> sourceList = reportConfigMapper.selectList(
+                createWrapper(ReportConfigBean.builder().code(code).build())
         );
         if(ObjectUtils.isEmpty(sourceList)){
             return null;
         }
 
-        DivisorBean restBean = DivisorBean.builder().build();
+        ReportConfigBean restBean = ReportConfigBean.builder().build();
         BeanUtils.copyProperties(sourceList.get(0), restBean);
         return restBean;
     }
 
     @Override
-    public List<DivisorBean> findByCodeList(List<String> codeList){
+    public List<ReportConfigBean> findByCodeList(List<String> codeList){
         if(CollectionUtils.isEmpty(codeList)) {
             return Collections.EMPTY_LIST;
         }
 
-        List<Divisor> sourceList = divisorMapper.selectList(
-                createWrapper(DivisorBean.builder().divisorCodeList(codeList).build())
+        List<ReportConfig> sourceList = reportConfigMapper.selectList(
+                createWrapper(ReportConfigBean.builder().reportConfigCodeList(codeList).build())
         );
         if(CollectionUtils.isEmpty(sourceList)) {
             return Collections.EMPTY_LIST;
         }
 
-        List<DivisorBean> restBeanList = sourceList.stream().map(v -> {
-            DivisorBean item = new DivisorBean();
+        List<ReportConfigBean> restBeanList = sourceList.stream().map(v -> {
+            ReportConfigBean item = new ReportConfigBean();
             BeanUtils.copyProperties(v,item);
             return item;
         }).collect(Collectors.toList());
@@ -79,14 +78,14 @@ public class DivisorServiceImpl extends ServiceImpl<DivisorMapper, Divisor> impl
     }
 
     @Override
-    public List<DivisorBean> findList(DivisorBean bean){
-        List<Divisor> list = divisorMapper.selectList(createWrapper(bean));
+    public List<ReportConfigBean> findList(ReportConfigBean bean){
+        List<ReportConfig> list = reportConfigMapper.selectList(createWrapper(bean));
         if(CollectionUtils.isEmpty(list)) {
             return Collections.EMPTY_LIST;
         }
 
-        List<DivisorBean> beanList = list.stream().map(item -> {
-            DivisorBean srcBean = new DivisorBean();
+        List<ReportConfigBean> beanList = list.stream().map(item -> {
+            ReportConfigBean srcBean = new ReportConfigBean();
             BeanUtils.copyProperties(item,srcBean);
             return srcBean;
         }).collect(Collectors.toList());
@@ -94,8 +93,8 @@ public class DivisorServiceImpl extends ServiceImpl<DivisorMapper, Divisor> impl
     }
 
     @Override
-    public Page<DivisorBean> findPage(DivisorBean bean, PageBean pageBean){
-        Page<Divisor> sourcePage = divisorMapper.selectPage(
+    public Page<ReportConfigBean> findPage(ReportConfigBean bean, PageBean pageBean){
+        Page<ReportConfig> sourcePage = reportConfigMapper.selectPage(
                 new Page<>(pageBean.getCurrent(),pageBean.getSize()),
                 createWrapper(bean)
         );
@@ -103,11 +102,11 @@ public class DivisorServiceImpl extends ServiceImpl<DivisorMapper, Divisor> impl
             return new Page<>();
         }
 
-        Page<DivisorBean> restPage = new Page<>();
+        Page<ReportConfigBean> restPage = new Page<>();
         BeanUtils.copyProperties(sourcePage, restPage,"records");
         restPage.setRecords(new ArrayList<>(sourcePage.getRecords().size()));
         sourcePage.getRecords().forEach(v -> {
-            DivisorBean itemBean = new DivisorBean();
+            ReportConfigBean itemBean = new ReportConfigBean();
             BeanUtils.copyProperties(v, itemBean);
             restPage.getRecords().add(itemBean);
         });
@@ -116,21 +115,21 @@ public class DivisorServiceImpl extends ServiceImpl<DivisorMapper, Divisor> impl
 
     @Transactional
     @Override
-    public DivisorBean add(DivisorBean bean){
-        Divisor source = new Divisor();
+    public ReportConfigBean add(ReportConfigBean bean){
+        ReportConfig source = new ReportConfig();
         BeanUtils.copyProperties(bean, source);
 
-        divisorMapper.insert(source);
+        reportConfigMapper.insert(source);
         BeanUtils.copyProperties(source, bean);
         return bean;
     }
 
     @Transactional
     @Override
-    public int updateByCode(DivisorBean bean) {
-        Divisor source = new Divisor();
+    public int updateByCode(ReportConfigBean bean) {
+        ReportConfig source = new ReportConfig();
         BeanUtils.copyProperties(bean,source);
-        return divisorMapper.updateById(source);
+        return reportConfigMapper.updateById(source);
     }
 
     @Transactional
@@ -140,10 +139,10 @@ public class DivisorServiceImpl extends ServiceImpl<DivisorMapper, Divisor> impl
             return 0;
         }
 
-        Divisor updateSource = new Divisor();
+        ReportConfig updateSource = new ReportConfig();
         updateSource.setCode(code);
         updateSource.setValid(DataValid.INVALID);
-        return divisorMapper.updateById(updateSource);
+        return reportConfigMapper.updateById(updateSource);
     }
 
     @Transactional
@@ -167,29 +166,23 @@ public class DivisorServiceImpl extends ServiceImpl<DivisorMapper, Divisor> impl
      * @param bean
      * @return
      */
-    private LambdaQueryWrapper createWrapper(DivisorBean bean){
-        LambdaQueryWrapper<Divisor> wrapper = Wrappers.lambdaQuery();
+    private LambdaQueryWrapper createWrapper(ReportConfigBean bean){
+        LambdaQueryWrapper<ReportConfig> wrapper = Wrappers.lambdaQuery();
         if(bean == null || bean.getValid() == null){
-            wrapper.eq(Divisor::getValid,DataValid.VALID);
+            wrapper.eq(ReportConfig::getValid,DataValid.VALID);
         }
 
         // 自定义条件
         if(bean != null) {
             if(bean.getValid() != null){
-                wrapper.eq(Divisor::getValid,bean.getValid());
+                wrapper.eq(ReportConfig::getValid,bean.getValid());
             }
             if(!ObjectUtils.isEmpty(bean.getCode())){
-                wrapper.eq(Divisor::getCode, bean.getCode());
+                wrapper.eq(ReportConfig::getCode, bean.getCode());
             }
-            if(CollectionUtils.isNotEmpty(bean.getDivisorCodeList())){
-                wrapper.in(Divisor::getCode, bean.getDivisorCodeList());
-            }if (!ObjectUtils.isEmpty(bean.getDivisorDesc())) {
-				wrapper.like(Divisor::getDivisorDesc,bean.getDivisorDesc());
-			}if (!ObjectUtils.isEmpty(bean.getDivisorName())) {
-				wrapper.like(Divisor::getDivisorName,bean.getDivisorName());
-			}if (!ObjectUtils.isEmpty(bean.getDivisorCat())) {
-				wrapper.like(Divisor::getDivisorCat,bean.getDivisorCat());
-			}
+            if(CollectionUtils.isNotEmpty(bean.getReportConfigCodeList())){
+                wrapper.in(ReportConfig::getCode, bean.getReportConfigCodeList());
+            }
 
             // 编写条件逻辑....
 

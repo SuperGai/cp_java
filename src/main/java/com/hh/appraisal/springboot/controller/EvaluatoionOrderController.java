@@ -20,6 +20,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.hh.appraisal.springboot.core.constant.AuthConstant;
 import org.springframework.web.bind.annotation.RequestMethod;
 import com.hh.appraisal.springboot.bean.EvaluatoionOrderBean;
+import com.hh.appraisal.springboot.bean.QuestionOptionsBean;
 import com.hh.appraisal.springboot.service.EvaluatoionOrderService;
 import com.wuwenze.poi.ExcelKit;
 
@@ -59,6 +60,28 @@ public class EvaluatoionOrderController {
 		// 处理列表逻辑....
 		return RestBean.ok(page);
 	}
+	
+	/**
+	 * 根据测评码查询订单
+	 * 
+	 * @param bean
+	 * @return
+	 */
+	@ApiOperation(value = "根据测评码查询订单", response = RestBean.class)
+	@ApiOperationSupport(ignoreParameters = { "code", "createTime", "updateTime", "valid" })
+	@ApiImplicitParam(paramType = "header", dataType = "String", name = AuthConstant.TOKEN, value = "鉴权token", required = true)
+	@RequestMapping(value = "/listByEvaluationCode", method = { RequestMethod.POST })
+	public RestBean listByQuestion(EvaluatoionOrderBean bean) {
+		List<EvaluatoionOrderBean> list = evaluatoionOrderService.findList(bean);
+		if (list == null ||list.size()==0) {
+			return RestBean.ok();
+		}
+		// 处理列表逻辑....
+		return RestBean.ok(list);
+	}
+	
+	
+	
 
 	/**
 	 * 查看详情

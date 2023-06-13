@@ -54,17 +54,10 @@ public class GeneraPdfAsyncTaskService {
 
 	@Async
 	public void executeAsyncTask(String evaluationUserCode) throws Exception {
-//		//是否完成答题改成是
-		System.out.println(evaluationUserCode);
-		EvaluatoionUser evaluatoionUser = evaluatoionUserService
-				.getOne(new QueryWrapper<EvaluatoionUser>().eq("EVALUATOION_CODE", evaluationUserCode));
-		evaluatoionUser.setIsComplete("Y");
-		// 答题时间
-		long spendTime = userAnswersMapper.getAllProductSpendTime(evaluationUserCode);
-		evaluatoionUser.setSpendTime(spendTime);
-		evaluatoionUserService.saveOrUpdate(evaluatoionUser);
 		String strDateFormat = "yyyy-MM-dd";
 		SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
+		EvaluatoionUser evaluatoionUser = evaluatoionUserService
+				.getOne(new QueryWrapper<EvaluatoionUser>().eq("EVALUATOION_CODE", evaluationUserCode));
 		// 转化成json对象
 		JSONObject json = (JSONObject) JSON.toJSON(evaluatoionUser);
 		// 获取logo地址

@@ -10,6 +10,7 @@ import com.hh.appraisal.springboot.core.baen.PageBean;
 import com.hh.appraisal.springboot.core.constant.DataValid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,10 +20,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.hh.appraisal.springboot.bean.EvaluatoionOrderBean;
+import com.hh.appraisal.springboot.bean.ProductBean;
 import com.hh.appraisal.springboot.constant.CpStatus;
 import com.hh.appraisal.springboot.dao.EvaluatoionOrderMapper;
 import com.hh.appraisal.springboot.entity.EvaluatoionOrder;
 import com.hh.appraisal.springboot.service.EvaluatoionOrderService;
+import com.hh.appraisal.springboot.service.ProductService;
 
 /**
  * EvaluatoionOrder Service 实现类
@@ -40,6 +43,9 @@ public class EvaluatoionOrderServiceImpl extends ServiceImpl<EvaluatoionOrderMap
 	public EvaluatoionOrderServiceImpl(EvaluatoionOrderMapper evaluatoionOrderMapper) {
 		this.evaluatoionOrderMapper = evaluatoionOrderMapper;
 	}
+	
+	@Autowired
+	private ProductService productService;
 
 	@Override
 	public EvaluatoionOrderBean findByCode(String code) {
@@ -84,10 +90,11 @@ public class EvaluatoionOrderServiceImpl extends ServiceImpl<EvaluatoionOrderMap
 		if (CollectionUtils.isEmpty(list)) {
 			return Collections.EMPTY_LIST;
 		}
-
 		List<EvaluatoionOrderBean> beanList = list.stream().map(item -> {
 			EvaluatoionOrderBean srcBean = new EvaluatoionOrderBean();
 			BeanUtils.copyProperties(item, srcBean);
+			ProductBean product=productService.findByCode(item.getProductCode());
+			srcBean.setProductName(product.getProductName());
 			return srcBean;
 		}).collect(Collectors.toList());
 		return beanList;
@@ -188,6 +195,9 @@ public class EvaluatoionOrderServiceImpl extends ServiceImpl<EvaluatoionOrderMap
 			}
 			if (!ObjectUtils.isEmpty(bean.getCode())) {
 				wrapper.eq(EvaluatoionOrder::getCode, bean.getCode());
+			}
+			if (!ObjectUtils.isEmpty(bean.getEvaluatoionCodeCode())) {
+				wrapper.eq(EvaluatoionOrder::getEvaluatoionCodeCode, bean.getEvaluatoionCodeCode());
 			}
 			if (CollectionUtils.isNotEmpty(bean.getEvaluatoionOrderList())) {
 				wrapper.in(EvaluatoionOrder::getCode, bean.getEvaluatoionOrderList());
