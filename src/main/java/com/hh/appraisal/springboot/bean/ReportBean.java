@@ -65,6 +65,18 @@ public class ReportBean implements Serializable {
      * 产品名称
      */
     @ApiModelProperty(value = "产品名称")
+    private String productName;
+    
+    /**
+     * 报告模型
+     */
+    @ApiModelProperty(value = "报告模型")
+    private String reportType;
+    
+    /**
+     * 产品名称
+     */
+    @ApiModelProperty(value = "产品名称")
     private List<String> productCodeList;
     
 

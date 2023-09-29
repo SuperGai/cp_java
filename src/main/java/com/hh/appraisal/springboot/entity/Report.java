@@ -33,12 +33,24 @@ public class Report extends BasicEntity {
 	@EntityDoc(note = "产品名称")
 	private String productCode;
 	
+	/**
+	 * 产品名称（多选）
+	 */
+	@EntityDoc(note = "产品名称")
+	private String productName;
+	
 	
 	/**
 	 * 报告简介
 	 */
 	@EntityDoc(note = "报告简介")
 	private String reportInfo;
+	
+	/**
+	 * 报告类型
+	 */
+	@EntityDoc(note = "报告类型")
+	private String reportType;
 	
 	/**
 	 * 阅读建议

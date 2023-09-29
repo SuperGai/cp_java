@@ -1,6 +1,7 @@
 package com.hh.appraisal.springboot.serviceimpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -15,19 +16,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.hh.appraisal.springboot.bean.ProductBean;
 import com.hh.appraisal.springboot.bean.ReportBean;
 import com.hh.appraisal.springboot.bean.ReportConfigBean;
 import com.hh.appraisal.springboot.bean.ReportConfigCatBean;
 import com.hh.appraisal.springboot.bean.ReportPanelBean;
 import com.hh.appraisal.springboot.bean.system.SysDictBean;
 import com.hh.appraisal.springboot.bean.system.SysDictTypeBean;
+import com.hh.appraisal.springboot.entity.Product;
 import com.hh.appraisal.springboot.entity.Report;
+import com.hh.appraisal.springboot.entity.system.SysDict;
+import com.hh.appraisal.springboot.dao.ProductMapper;
 import com.hh.appraisal.springboot.dao.ReportMapper;
+import com.hh.appraisal.springboot.dao.system.SysDictMapper;
+import com.hh.appraisal.springboot.service.ProductService;
 import com.hh.appraisal.springboot.service.ReportConfigService;
 import com.hh.appraisal.springboot.service.ReportService;
 import com.hh.appraisal.springboot.service.system.SysDictService;
@@ -44,6 +52,8 @@ import com.hh.appraisal.springboot.service.system.SysDictTypeService;
 public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> implements ReportService {
 
 	private final ReportMapper reportMapper;
+	
+
 
 	@Autowired
 	private ReportConfigService reportConfigService;
@@ -53,10 +63,18 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
 
 	@Autowired
 	private SysDictService sysDictService;
+	
+	@Autowired
+	private SysDictMapper sysDictMapper;
+
+	@Autowired
+	private ProductService productService;
 
 	public ReportServiceImpl(ReportMapper reportMapper) {
 		this.reportMapper = reportMapper;
 	}
+	
+	
 
 	@Override
 	public ReportBean findByCode(String code) {
@@ -122,6 +140,18 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
 		sourcePage.getRecords().forEach(v -> {
 			ReportBean itemBean = new ReportBean();
 			BeanUtils.copyProperties(v, itemBean);
+			List<String> codelist = Arrays.asList(itemBean.getProductCode().split(","));
+			List<ProductBean> productList = productService.findByCodeList(codelist);
+			String productNameString = "";
+			for (int i = 0; i < productList.size(); i++) {
+				ProductBean product = productList.get(i);
+				String productName = product.getProductName();
+				productNameString += productName + ",";
+			}
+			if (productNameString.length() > 0) {
+				productNameString = productNameString.substring(0, productNameString.length() - 1);
+			}
+			itemBean.setProductName(productNameString);
 			restPage.getRecords().add(itemBean);
 		});
 		return restPage;
@@ -132,6 +162,7 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
 	public ReportBean add(ReportBean bean) {
 		List<String> productCodeList = bean.getProductCodeList();
 		String productString = "";
+		String productNameString = "";
 		for (Iterator iterator = productCodeList.iterator(); iterator.hasNext();) {
 			String product = (String) iterator.next();
 			productString += product + ",";
@@ -139,6 +170,7 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
 		if (productString.length() > 0) {
 			productString = productString.substring(0, productString.length() - 1);
 		}
+		bean.setProductCode(productString);
 		Report source = new Report();
 		BeanUtils.copyProperties(bean, source);
 		reportMapper.insert(source);
@@ -148,46 +180,34 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
 		return bean;
 	}
 
-	public void addreportConfigBean(String dictTypeName,ReportBean bean) {
+	public void addreportConfigBean(String dictTypeName, ReportBean bean) {
 		SysDictTypeBean typeBean = new SysDictTypeBean();
 		typeBean.setNum(dictTypeName);
 		typeBean = sysDictTypeService.findOne(typeBean);
-		List<SysDictBean> listSysDictBean = sysDictService
-				.findList(SysDictBean.builder().typeCode(typeBean.getCode()).build());
+		SysDictBean SysDictBean=new SysDictBean();
+		SysDictBean.setTypeCode(typeBean.getCode());
+		List<SysDict> listSysDictBean = sysDictMapper.selectList(new QueryWrapper<SysDict>().eq("TYPE_CODE", typeBean.getCode()).orderByAsc("SORT"));
 		for (Iterator iterator = listSysDictBean.iterator(); iterator.hasNext();) {
-			ReportConfigBean reportConfigBean=new ReportConfigBean();
-			SysDictBean sysDictBean = (SysDictBean) iterator.next();
+			ReportConfigBean reportConfigBean = new ReportConfigBean();
+			SysDict sysDictBean = (SysDict) iterator.next();
 			reportConfigBean.setReportCode(bean.getCode());
 			reportConfigBean.setReportConfigPartName(typeBean.getName());
 			reportConfigBean.setReportConfigPartColName(sysDictBean.getName());
 			reportConfigBean.setReportConfigPartColCode(sysDictBean.getCode());
+			reportConfigBean.setReportConfigPartColNameen(sysDictBean.getValue());
 			reportConfigBean.setReportConfigPartCode(typeBean.getNum());
-			//默认为N
+			// 默认为N
 			reportConfigBean.setReportConfigPartColValue("N");
+			reportConfigBean.setReportConfigPartColOrderno(sysDictBean.getSort());			
 			reportConfigService.add(reportConfigBean);
 		}
 	}
-	
+
 	@Transactional
 	@Override
 	public int updateByCode(ReportBean bean) {
 		Report source = new Report();
 		BeanUtils.copyProperties(bean, source);
-		List<ReportConfigCatBean> catlist = bean.getReportConfigCatList();
-		for (Iterator iterator = catlist.iterator(); iterator.hasNext();) {
-			ReportConfigCatBean reportConfigCatBean = (ReportConfigCatBean) iterator.next();
-			List<ReportConfigBean> list = reportConfigCatBean.getReportConfig();
-			for (Iterator iterator2 = list.iterator(); iterator2.hasNext();) {
-				ReportConfigBean reportConfigBean = (ReportConfigBean) iterator2.next();
-//				if (ObjectUtils.isEmpty(reportConfigBean.getCode())) {
-//					reportConfigBean.setReportConfigPartName(reportConfigCatBean.getReportConfigPartName());
-//					reportConfigBean.setReportCode(bean.getCode());
-//					reportConfigService.add(reportConfigBean);
-//				} else {
-				reportConfigService.updateByCode(reportConfigBean);
-//				}
-			}
-		}
 		return reportMapper.updateById(source);
 	}
 
@@ -248,6 +268,22 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
 		}
 
 		return wrapper;
+	}
+
+	@Override
+	@Transactional
+	public int updateReportConfigByCode(List<ReportConfigCatBean> catlist) {
+		// TODO Auto-generated method stub
+		int count = 0;
+		for (Iterator iterator = catlist.iterator(); iterator.hasNext();) {
+			ReportConfigCatBean reportConfigCatBean = (ReportConfigCatBean) iterator.next();
+			List<ReportConfigBean> list = reportConfigCatBean.getReportConfig();
+			for (Iterator iterator2 = list.iterator(); iterator2.hasNext();) {
+				ReportConfigBean reportConfigBean = (ReportConfigBean) iterator2.next();
+				count += reportConfigService.updateByCode(reportConfigBean);
+			}
+		}
+		return count;
 	}
 
 }

@@ -11,6 +11,7 @@ import com.hh.appraisal.springboot.core.annotation.NoPermission;
 import com.hh.appraisal.springboot.core.baen.PageBean;
 import com.hh.appraisal.springboot.core.baen.RestBean;
 import com.hh.appraisal.springboot.core.constant.RestCode;
+import com.hh.appraisal.springboot.core.utils.StrUtils;
 import com.hh.appraisal.springboot.dao.UserAnswersMapper;
 import com.hh.appraisal.springboot.entity.EvaluatoionOrder;
 import com.hh.appraisal.springboot.entity.EvaluatoionUser;
@@ -36,13 +37,16 @@ import com.hh.appraisal.springboot.bean.EvaluatoionOrderBean;
 import com.hh.appraisal.springboot.bean.EvaluatoionUserBean;
 import com.hh.appraisal.springboot.bean.ProductBean;
 import com.hh.appraisal.springboot.bean.QuestionAllBean;
+import com.hh.appraisal.springboot.bean.QuestionBean;
 import com.hh.appraisal.springboot.bean.UserAnswersBean;
 import com.hh.appraisal.springboot.constant.CpStatus;
 import com.hh.appraisal.springboot.service.EvaluatoionOrderService;
 import com.hh.appraisal.springboot.service.EvaluatoionUserService;
 import com.hh.appraisal.springboot.service.GeneraPdfAsyncTaskService;
 import com.hh.appraisal.springboot.service.GeneraPdfAsyncTaskService3;
+import com.hh.appraisal.springboot.service.GeneraPdfModel2AsyncTaskService;
 import com.hh.appraisal.springboot.service.ProductService;
+import com.hh.appraisal.springboot.service.QuestionService;
 import com.hh.appraisal.springboot.service.UserAnswersService;
 import com.wuwenze.poi.ExcelKit;
 
@@ -68,6 +72,9 @@ public class UserAnswersController {
 	GeneraPdfAsyncTaskService3 generaPdfAsyncTaskService2;
 
 	@Autowired
+	GeneraPdfModel2AsyncTaskService generaPdfModel2AsyncTaskService;
+
+	@Autowired
 	ProductService productService;
 
 	@Autowired
@@ -75,6 +82,9 @@ public class UserAnswersController {
 
 	@Autowired
 	UserAnswersMapper userAnswersMapper;
+
+	@Autowired
+	QuestionService questionService;
 
 	public UserAnswersController(UserAnswersService userAnswersService,
 			EvaluatoionOrderService evaluatoionOrderService) {
@@ -190,6 +200,31 @@ public class UserAnswersController {
 			bean.setQuestionOptionsCode(questionOptionsCode);
 		}
 		if (value != null && value.length() > 0) {
+			QuestionBean questionBean = questionService.findByCode(bean.getQuestionCode());
+			System.out.println("value:" + value);
+			if (questionBean.getQuestionType().equals("OPTION_INPUT")) {
+				String valueArray[] = value.split("&");
+				int sum = 0;
+				for (int i = 0; i < valueArray.length; i++) {
+					String numValue = valueArray[i].split(":")[1];
+					if (StrUtils.isNumeric(numValue)) {
+						int number = Integer.parseInt(numValue);
+						sum += number;
+						if (!(number >= 0 && number <= 3)) {
+							return RestBean.error("不在0-3范围内");
+						}
+					} else {
+						return RestBean.error("不是数字");
+					}
+				}
+				if (sum != 3) {
+					return RestBean.error("各项之和应该为3!");
+				}
+			} else if (questionBean.getQuestionType().equals("INPUT")) {
+				if (!StrUtils.isNumeric(value)) {
+					return RestBean.error("不是数字");
+				}
+			}
 			bean.setValue(value);
 		}
 		bean.setIsComplete("Y");
@@ -253,12 +288,13 @@ public class UserAnswersController {
 	 * 
 	 * @param codeList
 	 * @return
+	 * @throws Exception
 	 */
 	@ApiOperation(value = "完成答题", response = RestBean.class)
 	@ApiImplicitParam(paramType = "header", dataType = "String", name = AuthConstant.TOKEN, value = "鉴权token", required = true)
 	@RequestMapping(value = "/completeAnswer", method = { RequestMethod.POST })
 	public RestBean completeAnswer(@RequestParam("evaluationUserCode") String evaluationUserCode,
-			@RequestParam("productCode") String productCode) {
+			@RequestParam("productCode") String productCode) throws Exception {
 		if (ObjectUtils.isEmpty(evaluationUserCode)) {
 			return RestBean.error(RestCode.DEFAULT_PARAMS_ERROR);
 		}
@@ -281,30 +317,26 @@ public class UserAnswersController {
 		queryOrderBean.setStatus("!" + CpStatus.COMPLETE);
 		List<EvaluatoionOrderBean> orderList = evaluatoionOrderService.findList(queryOrderBean);
 
-//		//是否完成答题改成是
-		EvaluatoionUser evaluatoionUser = evaluatoionUserService
-				.getOne(new QueryWrapper<EvaluatoionUser>().eq("EVALUATOION_CODE", evaluationUserCode));
-		evaluatoionUser.setIsComplete("Y");
-		// 答题时间
-		long spendTime = userAnswersMapper.getAllProductSpendTime(evaluationUserCode);
-		evaluatoionUser.setSpendTime(spendTime);
-		evaluatoionUserService.saveOrUpdate(evaluatoionUser);
-
 		// 不存在未完成的题目代表已经完成全部答题
 		if (orderList == null || orderList.size() == 0) {
+//			//是否完成答题改成是
+			EvaluatoionUser evaluatoionUser = evaluatoionUserService
+					.getOne(new QueryWrapper<EvaluatoionUser>().eq("EVALUATOION_CODE", evaluationUserCode));
+			evaluatoionUser.setIsComplete("Y");
+			// 答题时间
+			long spendTime = userAnswersMapper.getAllProductSpendTime(evaluationUserCode);
+			evaluatoionUser.setSpendTime(spendTime);
+			evaluatoionUserService.saveOrUpdate(evaluatoionUser);
 			ProductBean productBean = productService.findByCode(productCode);
 			if (productBean.getProductName().equals("中学生心理测评")) {
 				try {
 					generaPdfAsyncTaskService.executeAsyncTask(evaluationUserCode);
-//				generaPdfAsyncTaskService2.executeAsyncTask(evaluationUserCode);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			} else {
-				
-				
-
+				generaPdfModel2AsyncTaskService.executeAsyncTask(evaluationUserCode);
 			}
 		} else {
 			String nextProductCode = orderList.get(0).getProductCode();

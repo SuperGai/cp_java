@@ -66,6 +66,12 @@ public class DivisorBean implements Serializable {
      */
     @ApiModelProperty(value = "因子大类")
     private String divisorCat;
+    
+    /**
+     * 常模Code
+     */
+    @ApiModelProperty(value = "常模Code")
+    private String normCode;
 
     /**
      * 因子 唯一标识 集合

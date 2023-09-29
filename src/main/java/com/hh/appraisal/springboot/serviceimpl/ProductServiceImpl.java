@@ -3,7 +3,6 @@ package com.hh.appraisal.springboot.serviceimpl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -11,7 +10,6 @@ import com.hh.appraisal.springboot.core.baen.PageBean;
 import com.hh.appraisal.springboot.core.constant.DataValid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
@@ -22,7 +20,6 @@ import java.util.stream.Collectors;
 import com.hh.appraisal.springboot.bean.NormManageBean;
 import com.hh.appraisal.springboot.bean.ProductBean;
 import com.hh.appraisal.springboot.entity.Product;
-import com.hh.appraisal.springboot.entity.School;
 import com.hh.appraisal.springboot.dao.ProductMapper;
 import com.hh.appraisal.springboot.service.NormManageService;
 import com.hh.appraisal.springboot.service.ProductService;
@@ -38,13 +35,12 @@ import com.hh.appraisal.springboot.service.ProductService;
 public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> implements ProductService {
 
 	private final ProductMapper productMapper;
-
-	public ProductServiceImpl(ProductMapper productMapper) {
-		this.productMapper = productMapper;
-	}
-
-	@Autowired
 	private NormManageService normManageService;
+
+	public ProductServiceImpl(ProductMapper productMapper,NormManageService normManageService) {
+		this.productMapper = productMapper;
+		this.normManageService=normManageService;
+	}
 
 	@Override
 	public ProductBean findByCode(String code) {

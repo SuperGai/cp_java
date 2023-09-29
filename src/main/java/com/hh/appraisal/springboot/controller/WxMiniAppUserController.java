@@ -26,16 +26,19 @@ import com.hh.appraisal.springboot.core.constant.DataValid;
 import com.hh.appraisal.springboot.core.constant.RestCode;
 import com.hh.appraisal.springboot.core.jwt.JwtService;
 import com.hh.appraisal.springboot.core.utils.StrUtils;
+import com.hh.appraisal.springboot.dao.EvaluatoionOrderMapper;
 import com.hh.appraisal.springboot.dao.SchoolMapper;
 import com.hh.appraisal.springboot.dao.UserAnswersMapper;
 import com.hh.appraisal.springboot.entity.EvaluatoionCode;
 import com.hh.appraisal.springboot.entity.EvaluatoionUser;
+import com.hh.appraisal.springboot.entity.Report;
 import com.hh.appraisal.springboot.entity.School;
 import com.hh.appraisal.springboot.entity.system.SysRole;
 import com.hh.appraisal.springboot.service.EvaluatoionCodeService;
 import com.hh.appraisal.springboot.service.EvaluatoionOrderService;
 import com.hh.appraisal.springboot.service.EvaluatoionUserService;
 import com.hh.appraisal.springboot.service.ProductService;
+import com.hh.appraisal.springboot.service.ReportService;
 import com.hh.appraisal.springboot.service.WxMiniAppUserService;
 import com.hh.appraisal.springboot.service.system.SysApiService;
 import com.hh.appraisal.springboot.service.system.SysDictService;
@@ -56,6 +59,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -78,7 +82,13 @@ public class WxMiniAppUserController {
 	private final EvaluatoionOrderService evaluatoionOrderService;
 
 	@Autowired
+	EvaluatoionOrderMapper evaluatoionOrderMapper;
+
+	@Autowired
 	SchoolMapper schoolMapper;
+
+	@Autowired
+	ReportService reportService;
 
 	public WxMiniAppUserController(JwtService jwtService, EvaluatoionCodeService evaluatoionCodeService,
 			SysUserService userService, SysRoleService roleService, SysApiService apiService,
@@ -136,12 +146,12 @@ public class WxMiniAppUserController {
 		// 获取待答题的订单清单
 		EvaluatoionOrderBean queryOrderBean = new EvaluatoionOrderBean();
 		queryOrderBean.setEvaluatoionCode(code);
-		queryOrderBean.setStatus("!"+CpStatus.COMPLETE);
-		List<EvaluatoionOrderBean> orderList=evaluatoionOrderService.findList(queryOrderBean);
-		if(orderList==null||orderList.size()==0) {
+		queryOrderBean.setStatus("!" + CpStatus.COMPLETE);
+		List<EvaluatoionOrderBean> orderList = evaluatoionOrderService.findList(queryOrderBean);
+		if (orderList == null || orderList.size() == 0) {
 			return RestBean.error("测评已完成！");
 		}
-		//获取学校信息
+		// 获取学校信息
 		School school = schoolMapper.selectOne(new QueryWrapper<School>().eq("code", userInfo.getShoolCode()));
 		// 用户所属角色列表
 		SysApiBean bean = new SysApiBean();
@@ -162,16 +172,20 @@ public class WxMiniAppUserController {
 		}
 		// 取未完成订单的第一个产品code获取产品信息
 		ProductBean product = productService.findByCode(orderList.get(0).getProductCode());
-		
 		// 获取当前题序
-		int questionNo = userAnswersMapper.getMinUnCompleteNo(code,product.getCode());
-		
+		int questionNo = userAnswersMapper.getMinUnCompleteNo(code, product.getCode());
+
 		String colConfigName = "";
 		// 如果产品信息为中小学心理测评，就获取这个产品需要填写的用户信息的字段
 		if (product.getProductName().equals("中学生心理测评")) {
 			colConfigName = "STUDENT_INFO";
+			restMap.put("reportName", product.getProductName());
 		} else {
 			colConfigName = "OTHER_PRODUCT_USER_INFO";
+			String reportCuName = evaluatoionOrderMapper.getReportNameByUserCode(code,orderList.size());
+			// 获取对应的报告名称
+			Report report = reportService.getOne(new QueryWrapper<Report>().eq("report_name", reportCuName));
+			restMap.put("reportName", report.getReportName());
 		}
 		restMap.put("product", product);
 		// 判断用户是否填写个人信息
@@ -191,7 +205,6 @@ public class WxMiniAppUserController {
 		} else {
 			restMap.put("isCompleteUserInfo", 1);
 		}
-
 		restMap.put("token", JwtTokenBean.JWT_TOKEN_PREFIX + jwtToken);
 		restMap.put("logo", school.getLogo());
 		restMap.put("EvaluatoionCode", userInfo.getEvaluatoionCode());

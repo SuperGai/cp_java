@@ -77,5 +77,11 @@ public class EvaluatoionCode extends BasicEntity {
     private String isused;
     
     
+    /**
+     * 是否有掩饰性
+     */
+    @EntityDoc(note = "是否有掩饰性")
+    private String isHaveYsx;
+    
 
 }

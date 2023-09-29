@@ -2,6 +2,7 @@ package com.hh.appraisal.springboot.controller;
 
 import io.swagger.annotations.*;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -10,6 +11,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hh.appraisal.springboot.core.baen.PageBean;
 import com.hh.appraisal.springboot.core.baen.RestBean;
 import com.hh.appraisal.springboot.core.constant.RestCode;
+import com.hh.appraisal.springboot.dao.ProductMapper;
+import com.hh.appraisal.springboot.entity.Product;
 import com.hh.appraisal.springboot.entity.ReportConfig;
 
 import org.springframework.beans.BeanUtils;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,9 +34,12 @@ import java.util.Map.Entry;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.hh.appraisal.springboot.core.constant.AuthConstant;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.hh.appraisal.springboot.bean.ProductBean;
 import com.hh.appraisal.springboot.bean.ReportBean;
 import com.hh.appraisal.springboot.bean.ReportConfigBean;
 import com.hh.appraisal.springboot.bean.ReportConfigCatBean;
+import com.hh.appraisal.springboot.service.ProductService;
 import com.hh.appraisal.springboot.service.ReportConfigService;
 import com.hh.appraisal.springboot.service.ReportService;
 
@@ -51,6 +58,9 @@ public class ReportController {
 
 	@Autowired
 	private ReportConfigService reportConfigService;
+
+	@Autowired
+	private ProductService productService;
 
 	public ReportController(ReportService reportService) {
 		this.reportService = reportService;
@@ -71,6 +81,8 @@ public class ReportController {
 		if (page == null || CollectionUtils.isEmpty(page.getRecords())) {
 			return RestBean.ok(new Page<>());
 		}
+	
+		
 		// 处理列表逻辑....
 		return RestBean.ok(page);
 	}
@@ -107,6 +119,20 @@ public class ReportController {
 				map.put(name, list);
 			}
 		}
+		
+		List<String> codelist = Arrays.asList(bean.getProductCode().split(","));
+		List<ProductBean> productList = productService.findByCodeList(codelist);
+		String productNameString = "";
+		for (int i = 0; i < productList.size(); i++) {
+			ProductBean product = productList.get(i);
+			String productName = product.getProductName();
+			productNameString += productName + ",";
+		}
+		if (productNameString.length() > 0) {
+			productNameString = productNameString.substring(0, productNameString.length() - 1);
+		}
+		bean.setProductName(productNameString);
+
 		Iterator<Entry<String, List<ReportConfig>>> iterator = map.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Entry<String, List<ReportConfig>> next = iterator.next();
@@ -149,12 +175,29 @@ public class ReportController {
 	@ApiOperation(value = "根据唯一标识更新一条记录", response = RestBean.class)
 	@ApiImplicitParam(paramType = "header", dataType = "String", name = AuthConstant.TOKEN, value = "鉴权token", required = true)
 	@RequestMapping(value = "/update", method = { RequestMethod.POST })
-	public RestBean update(@RequestBody JSONObject bean) {
-		ReportBean reportBean= bean.toJavaObject(ReportBean.class);
-		if (bean == null || ObjectUtils.isEmpty(reportBean.getCode())) {
+	public RestBean update(ReportBean bean) {
+//		ReportBean reportBean = bean.toJavaObject(ReportBean.class);
+		if (bean == null || ObjectUtils.isEmpty(bean.getCode())) {
 			return RestBean.error(RestCode.DEFAULT_PARAMS_ERROR);
 		}
-		return RestBean.ok(reportService.updateByCode(reportBean));
+		return RestBean.ok(reportService.updateByCode(bean));
+	}
+
+	/**
+	 * 根据唯一标识更新一条记录
+	 * 
+	 * @param bean
+	 * @return
+	 */
+	@ApiOperation(value = "根据唯一标识更新一条记录", response = RestBean.class)
+	@ApiImplicitParam(paramType = "header", dataType = "String", name = AuthConstant.TOKEN, value = "鉴权token", required = true)
+	@RequestMapping(value = "/updateReportConfig", method = { RequestMethod.POST })
+	public RestBean updateReportConfig(@RequestBody JSONArray bean) {
+		List<ReportConfigCatBean> ReportConfigCatList = bean.toJavaList(ReportConfigCatBean.class);
+		if (bean == null || ObjectUtils.isEmpty(ReportConfigCatList.size())) {
+			return RestBean.error(RestCode.DEFAULT_PARAMS_ERROR);
+		}
+		return RestBean.ok(reportService.updateReportConfigByCode(ReportConfigCatList));
 	}
 
 	/**

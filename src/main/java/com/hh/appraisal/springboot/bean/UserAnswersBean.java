@@ -112,6 +112,11 @@ public class UserAnswersBean implements Serializable {
     @ApiModelProperty(value = "填空答案")
     private String value;
     
+    @ApiModelProperty(value = "实际答题的产品code")
+    private String productCodeReal;
+      
+    
+    
     /**
      * 题目选项表 唯一标识 集合
      */

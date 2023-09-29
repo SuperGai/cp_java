@@ -180,6 +180,9 @@ public class NormManageItemServiceImpl extends ServiceImpl<NormManageItemMapper,
             if(!ObjectUtils.isEmpty(bean.getCode())){
                 wrapper.eq(NormManageItem::getCode, bean.getCode());
             }
+            if(!ObjectUtils.isEmpty(bean.getNormCode())){
+                wrapper.eq(NormManageItem::getNormCode, bean.getNormCode());
+            }
             if(CollectionUtils.isNotEmpty(bean.getNormManageItemCodeList())){
                 wrapper.in(NormManageItem::getCode, bean.getNormManageItemCodeList());
             }

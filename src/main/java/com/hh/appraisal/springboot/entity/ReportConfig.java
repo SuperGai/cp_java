@@ -37,7 +37,7 @@ public class ReportConfig extends BasicEntity {
 	/**
 	 * 报告配置模块字段
 	 */
-	@EntityDoc(note = "报告配置模块字段")
+	@EntityDoc(note = "报告配置模块字段中文名")
 	private String reportConfigPartColName;
 
 	/**
@@ -45,13 +45,24 @@ public class ReportConfig extends BasicEntity {
 	 */
 	@EntityDoc(note = "报告配置模块字段值")
 	private String reportConfigPartColValue;
-	
 
     /**
      * 报告配置模块字段
      */
 	@EntityDoc(note = "报告配置模块字段Code")
     private String reportConfigPartColCode;
+	
+	  /**
+     * 报告配置模块字段
+     */
+	@EntityDoc(note = "报告配置模块字段英文名")
+    private String reportConfigPartColNameen;
+	
+    /**
+     * 报告配置模块字段名排序
+     */
+	@EntityDoc(note = "报告配置模块字段排序")
+    private long reportConfigPartColOrderno;
 
 	/**
 	 * 报告Code

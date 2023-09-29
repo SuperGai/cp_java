@@ -86,5 +86,8 @@ public class UserAnswers extends BasicEntity {
      */
     @EntityDoc(note = "填空答案")
     private String value;
+    
+    @EntityDoc(note = "实际答题的产品code")
+    private String productCodeReal;
 
 }

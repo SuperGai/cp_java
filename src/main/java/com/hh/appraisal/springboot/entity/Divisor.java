@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.hh.appraisal.springboot.core.annotation.EntityDoc;
 import com.hh.appraisal.springboot.core.entity.BasicEntity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -45,5 +46,11 @@ public class Divisor extends BasicEntity {
      */
     @EntityDoc(note = "因子大类")
     private String divisorCat;
+    
+    /**
+     * 常模Code
+     */
+    @EntityDoc(note = "常模Code")
+    private String normCode;
 
 }

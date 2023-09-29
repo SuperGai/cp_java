@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
+
+import com.hh.appraisal.springboot.core.annotation.EntityDoc;
+
 import java.io.Serializable;
 import java.lang.Integer;
 import java.util.Date;
@@ -78,6 +81,19 @@ public class ReportConfigBean implements Serializable {
      */
     @ApiModelProperty(value = "报告配置模块字段值")
     private String reportConfigPartColValue;
+    
+    
+	  /**
+     * 报告配置模块字段名英文
+     */
+    @ApiModelProperty(value = "报告配置模块字段英文名")
+    private String reportConfigPartColNameen;
+    
+    /**
+     * 报告配置模块字段名排序
+     */
+    @ApiModelProperty(value = "报告配置模块字段排序")
+    private long reportConfigPartColOrderno;
 
     /**
      * 报告Code

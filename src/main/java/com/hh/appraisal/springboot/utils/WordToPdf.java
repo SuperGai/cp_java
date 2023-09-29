@@ -36,14 +36,11 @@ public class WordToPdf {
 	}
 
 	public static void xls2image(String inPath, String outPath) throws IOException {
+		getLicense();
 		Workbook workbook = new Workbook();
-
 		workbook.loadFromFile(inPath);
-
 		Worksheet sheet = workbook.getWorksheets().get(0);
-
 		workbook.getConverterSetting().setSheetFitToPage(true);
-
 		sheet.saveToImage(outPath, 1, 1, sheet.getLastRow(), sheet.getLastColumn());
 	}
 

@@ -85,6 +85,14 @@ public class EvaluatoionOrderBean implements Serializable {
     @ApiModelProperty(value = "测评状态")
     private String status;
 
+    
+    /**
+     * 掩饰性数量
+     */
+    @ApiModelProperty(value = "掩饰性数量")
+    private int ysxNumber;
+    
+    
     /**
      * 数据是否有效
      */

@@ -6,6 +6,7 @@ import com.hh.appraisal.springboot.core.baen.PageBean;
 import java.util.List;
 
 import com.hh.appraisal.springboot.bean.ReportBean;
+import com.hh.appraisal.springboot.bean.ReportConfigCatBean;
 import com.hh.appraisal.springboot.bean.ReportPanelBean;
 import com.hh.appraisal.springboot.entity.Report;
 
@@ -58,6 +59,14 @@ public interface ReportService extends IService<Report> {
      * @return
      */
     int updateByCode(ReportBean bean);
+    
+    
+    /**
+     * 根据唯一标识更新一条记录
+     * @param bean
+     * @return
+     */
+    int updateReportConfigByCode(List<ReportConfigCatBean> ReportConfigCatList);
 
     /**
      * 根据唯一标识删除一条记录

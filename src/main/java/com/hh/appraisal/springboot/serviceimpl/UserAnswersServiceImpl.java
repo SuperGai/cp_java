@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import com.hh.appraisal.springboot.bean.EvaluatoionOrderBean;
@@ -36,7 +37,9 @@ import com.hh.appraisal.springboot.bean.UserAnswersBean;
 import com.hh.appraisal.springboot.constant.CpStatus;
 import com.hh.appraisal.springboot.entity.EvaluatoionCode;
 import com.hh.appraisal.springboot.entity.EvaluatoionOrder;
+import com.hh.appraisal.springboot.entity.Product;
 import com.hh.appraisal.springboot.entity.UserAnswers;
+import com.hh.appraisal.springboot.dao.EvaluatoionOrderMapper;
 import com.hh.appraisal.springboot.dao.UserAnswersMapper;
 import com.hh.appraisal.springboot.service.EvaluatoionCodeService;
 import com.hh.appraisal.springboot.service.EvaluatoionOrderService;
@@ -99,6 +102,20 @@ public class UserAnswersServiceImpl extends ServiceImpl<UserAnswersMapper, UserA
 			return null;
 		}
 		QuestionAllBean source = userAnswersMapper.findQuestion(QUESTION_NO, EVALUATOION_CODE, PRODUCT_CODE);
+		if (ObjectUtils.isEmpty(source)) {
+			return null;
+		}
+		return source;
+	}
+
+	/**
+	 * 找到题目
+	 */
+	public QuestionAllBean findYsxQuestion(Integer QUESTION_NO, String EVALUATOION_CODE, String PRODUCT_CODE) {
+		if (ObjectUtils.isEmpty(EVALUATOION_CODE) || ObjectUtils.isEmpty(QUESTION_NO)) {
+			return null;
+		}
+		QuestionAllBean source = userAnswersMapper.findYsxQuestion(QUESTION_NO, EVALUATOION_CODE, PRODUCT_CODE);
 		if (ObjectUtils.isEmpty(source)) {
 			return null;
 		}
@@ -264,13 +281,13 @@ public class UserAnswersServiceImpl extends ServiceImpl<UserAnswersMapper, UserA
 		// TODO Auto-generated method stub
 		UserAnswersBean bean = new UserAnswersBean();
 		bean.setEvaluationUserCode(evaluationUserCode);
-		bean.setProductCode(productCode);	
+		bean.setProductCode(productCode);
 		ProductBean product = productService.findByCode(productCode);
 		List<UserAnswersBean> list = findList(bean);
+		// 获取当前测评的订单,更新成为进行中
+		EvaluatoionOrder order = evaluatoionOrderService.getOne(new QueryWrapper<EvaluatoionOrder>()
+				.eq("product_Code", productCode).eq("evaluatoion_code", evaluationUserCode));
 		if (list == null || list.size() == 0) {
-			// 获取当前测评的订单,更新成为进行中
-			EvaluatoionOrder order = evaluatoionOrderService.getOne(new QueryWrapper<EvaluatoionOrder>()
-					.eq("product_Code", productCode).eq("evaluatoion_code", evaluationUserCode));
 			EvaluatoionOrderBean restBean = EvaluatoionOrderBean.builder().build();
 			BeanUtils.copyProperties(order, restBean);
 			restBean.setStatus(CpStatus.ING);
@@ -293,7 +310,7 @@ public class UserAnswersServiceImpl extends ServiceImpl<UserAnswersMapper, UserA
 				add(userAnswersBean);
 			}
 			QuestionAllBean allbean = findQuestion(1, evaluationUserCode, productCode);
-			allbean.setQuestionNum(product.getQuestionNum());
+			allbean.setQuestionNum(product.getQuestionNum() + order.getYsxNumber());
 			allbean.setAnswerTime(product.getAnswerTime());
 //			(new QueryWrapper<QuestionOptions>().eq("QUESTION_CODE", allbean.getQuestionCode()));
 			QuestionOptionsBean questionOptionsBean = new QuestionOptionsBean();
@@ -309,12 +326,19 @@ public class UserAnswersServiceImpl extends ServiceImpl<UserAnswersMapper, UserA
 			}
 			return allbean;
 		} else {
+			QuestionAllBean allbean = null;
 			int minNum = userAnswersMapper.getMinUnCompleteNo(evaluationUserCode, productCode);
 			if (minNum == 0) {
-				return null;
+				minNum = userAnswersMapper.getMinUnCompleteNoYsx(evaluationUserCode, productCode);
+				allbean = findYsxQuestion(minNum, evaluationUserCode, productCode);
+				if (allbean == null) {
+					return null;
+				}
 			}
-			QuestionAllBean allbean = findQuestion(minNum, evaluationUserCode, productCode);
-			allbean.setQuestionNum(product.getQuestionNum());
+			if (allbean == null) {
+				allbean = findQuestion(minNum, evaluationUserCode, productCode);
+			}
+			allbean.setQuestionNum(product.getQuestionNum()+order.getYsxNumber());
 			allbean.setAnswerTime(product.getAnswerTime());
 			QuestionOptionsBean questionOptionsBean = new QuestionOptionsBean();
 			questionOptionsBean.setQuestionCode(allbean.getQuestionCode());

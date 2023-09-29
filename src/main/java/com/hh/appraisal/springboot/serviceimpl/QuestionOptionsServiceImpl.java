@@ -197,7 +197,7 @@ public class QuestionOptionsServiceImpl extends ServiceImpl<QuestionOptionsMappe
 			// 编写条件逻辑....
 
 		}
-		wrapper.orderByAsc(QuestionOptions::getDivisorValue);
+		wrapper.orderByAsc(QuestionOptions::getName);
 		return wrapper;
 	}
 }

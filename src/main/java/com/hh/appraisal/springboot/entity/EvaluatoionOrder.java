@@ -66,4 +66,11 @@ public class EvaluatoionOrder extends BasicEntity {
     @EntityDoc(note  = "数据是否有效")
     private Integer valid;
 
+    /**
+     * 掩饰性数量
+     */
+    @EntityDoc(note = "掩饰性数量")
+    private int ysxNumber;
+    
+    
 }
