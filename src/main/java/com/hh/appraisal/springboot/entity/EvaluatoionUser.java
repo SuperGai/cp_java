@@ -103,31 +103,6 @@ public class EvaluatoionUser extends BasicEntity {
     @EntityDoc(note = "答题时间(秒)")
     private double spendTime;
     
-    
-    /**
-     * 邮箱
-     */
-    @EntityDoc(note = "邮箱")
-    private String email;
-    
-    /**
-     * 年龄
-     */
-    @EntityDoc(note = "年龄")
-    private int age;
-
-    
-    /**
-     * 公司
-     */
-    @EntityDoc(note = "公司名称")
-    private String companyName;
-    
-    
-    /**
-     * 职务
-     */
-    @EntityDoc(note = "职务")
-    private String position;
+  
     
 }

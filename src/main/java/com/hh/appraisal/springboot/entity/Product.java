@@ -58,54 +58,6 @@ public class Product extends BasicEntity {
 	@EntityDoc(note = "答题时间")
 	private int answerTime;
 
-	// add my gaigai 2023-04-26 
-	/**
-	 * 小程序的答题指导语
-	 */
-	@EntityDoc(note = "小程序的答题指导语")
-	private String instruction;
-	
-	/**
-	 * 小程序的答题指导语（英文）
-	 */
-	@EntityDoc(note = "小程序的答题指导语（英文）")
-	private String instructionEn;
-	
-	/**
-	 * 产品答题的背景图
-	 */
-	@EntityDoc(note = "产品答题的背景图")
-	private String backgroundImage;
-	
-	/**
-	 * 对应常模
-	 */
-	@EntityDoc(note = "对应常模")
-	private String normId;
-	
-	/**
-	 * 报告模板类型
-	 */
-	@EntityDoc(note = "报告模板类型")
-	private String modelType;
-	
-	/**
-	 * 报告导语
-	 */
-	@EntityDoc(note = "报告导语")
-	private String reportIntroduce;
-	
-	/**
-	 * 阅读建议(分数说明)
-	 */
-	@EntityDoc(note = "阅读建议(分数说明)")
-	private String readSuggest;
-	
-	/**
-	 * 关于报告
-	 */
-	@EntityDoc(note = "关于报告")
-	private String aboutReport;
 	
 
 }

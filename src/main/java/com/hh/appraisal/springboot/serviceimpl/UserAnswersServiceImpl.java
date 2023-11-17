@@ -257,7 +257,7 @@ public class UserAnswersServiceImpl extends ServiceImpl<UserAnswersMapper, UserA
 		List<UserAnswersBean> list = findList(bean);
 		if (list == null || list.size() == 0) {
 			QuestionBean question = new QuestionBean();
-			question.setQuestionBank(bean.getProductCode());
+			question.setQuestionBank(product.getCode());
 			List<QuestionBean> questionList = questionService.findList(question);
 			int numbers[] = NumberUtils.randomArray(1, product.getQuestionNum(), product.getQuestionNum());
 			for (int i = 0; i < questionList.size(); i++) {

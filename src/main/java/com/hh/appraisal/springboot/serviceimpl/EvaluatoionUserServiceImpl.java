@@ -197,15 +197,6 @@ public class EvaluatoionUserServiceImpl extends ServiceImpl<EvaluatoionUserMappe
 			if (!ObjectUtils.isEmpty(bean.getPhone())) {
 				wrapper.like(EvaluatoionUser::getPhone, bean.getPhone());
 			}
-			if (!ObjectUtils.isEmpty(bean.getEmail())) {
-				wrapper.like(EvaluatoionUser::getEmail, bean.getEmail());
-			}
-			if (!ObjectUtils.isEmpty(bean.getCompanyName())) {
-				wrapper.like(EvaluatoionUser::getCompanyName, bean.getCompanyName());
-			}
-			if (!ObjectUtils.isEmpty(bean.getPosition())) {
-				wrapper.like(EvaluatoionUser::getPosition, bean.getPosition());
-			}
 			if(!ObjectUtils.isEmpty(bean.getIsComplete())) {
 				wrapper.eq(EvaluatoionUser::getIsComplete, bean.getIsComplete());
 			}if(!ObjectUtils.isEmpty(bean.getCreateTimeStart())){

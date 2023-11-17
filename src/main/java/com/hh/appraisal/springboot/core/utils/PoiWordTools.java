@@ -90,28 +90,28 @@ public class PoiWordTools {
 	public static void replaceAll(XWPFDocument doc, String logo, List<String> titleArr, List<String> fldNameArr,
 			List<Map<String, String>> listItemsByType, Map<String, String> textMap, Map<String, String> imgMap,
 			JSONArray divisors) throws Exception {
-//		Map<String, POIXMLDocumentPart> chartsMap = new HashMap<String, POIXMLDocumentPart>();
+		Map<String, POIXMLDocumentPart> chartsMap = new HashMap<String, POIXMLDocumentPart>();
 //		// 动态刷新图表
-//		List<POIXMLDocumentPart> relations = doc.getRelations();
-//		for (POIXMLDocumentPart poixmlDocumentPart : relations) {
-//			if (poixmlDocumentPart instanceof XWPFChart) { // 如果是图表元素
-//				// 获取图表对应的表格数据里面的第一行第一列数据，可以拿来当作key值
-//				String str = poixmlDocumentPart.toString();
-//				System.out.println("str：" + str);
-//				String key = str.replaceAll("Name: ", "").replaceAll(
-//						" - Content Type: application/vnd\\.openxmlformats-officedocument\\.drawingml\\.chart\\+xml",
-//						"").trim();
-//				System.out.println("key：" + key);
-//				chartsMap.put(key, poixmlDocumentPart);
-//			}
-//		}
+		List<POIXMLDocumentPart> relations = doc.getRelations();
+		for (POIXMLDocumentPart poixmlDocumentPart : relations) {
+			if (poixmlDocumentPart instanceof XWPFChart) { // 如果是图表元素
+				// 获取图表对应的表格数据里面的第一行第一列数据，可以拿来当作key值
+				String str = poixmlDocumentPart.toString();
+				System.out.println("str：" + str);
+				String key = str.replaceAll("Name: ", "").replaceAll(
+						" - Content Type: application/vnd\\.openxmlformats-officedocument\\.drawingml\\.chart\\+xml",
+						"").trim();
+				System.out.println("key：" + key);
+				chartsMap.put(key, poixmlDocumentPart);
+			}
+		}
 		// 注意这里的key值
-//		POIXMLDocumentPart poixmlDocumentPart = chartsMap.get("/word/charts/chart1.xml");
-//		replaceBarCharts(poixmlDocumentPart, titleArr, fldNameArr, listItemsByType); // 处理图表数据，柱状图、折线图、饼图啊之类的
+		POIXMLDocumentPart poixmlDocumentPart = chartsMap.get("/word/charts/chart1.xml");
+		replaceBarCharts(poixmlDocumentPart, titleArr, fldNameArr, listItemsByType); // 处理图表数据，柱状图、折线图、饼图啊之类的
 
-		createHeader(doc, logo);
+//		createHeader(doc, logo);
 		
-		doParagraphs(doc, textMap, imgMap);
+//		doParagraphs(doc, textMap, imgMap);
 
 		dealDivisor(doc, divisors);
 
@@ -262,56 +262,56 @@ public class PoiWordTools {
 				for (XWPFRun run : runs) {
 					String text = run.getText(0);
 					if (text != null) {
-						if (text.contains("因子得分情况详细说明替换位置")) {
-							for (int i = 0; i < divisors.size(); i++) {
-								com.alibaba.fastjson.JSONObject divisor = divisors.getJSONObject(i);
-								String divisorName = divisor.getString("divisorName");
-								String divisorDesc = divisor.getString("divisorDesc");
-								String divisorAverag = divisor.getString("divisorAverag");
-								String contentZh = divisor.getString("contentZh");
-								String contentEn = divisor.getString("contentEn");
-//								2.	偏执
-//								该因子的症状表现：比如说觉得有人在背后议论自己，不相信他人，认为别人在和自己作对
-//								你在该因子的得分为（  A  ），表明该方面（     B     ），（     C     ）
-//								XWPFParagraph newParagraph = newParagraph(paragraph);
-//								newParagraph.setIndentationLeft(0);
-//								newParagraph.setIndentationHanging(0);
-//								newParagraph.setAlignment(ParagraphAlignment.LEFT);
-//								newParagraph.setWordWrap(true);
-								// 在段落中新插入一个run,这里的run我理解就是一个word文档需要显示的个体,里面可以放文字,参数0代表在段落的最前面插入
-								XWPFRun runtext2 = paragraph.insertNewRun(1);
-								// 设置run内容
-								runtext2.setText("你在该因子的得分为" + divisorAverag + ",表明该方面" + contentZh + "。" + contentEn);
-								runtext2.addCarriageReturn();// 硬回车
-								runtext2.addCarriageReturn();// 硬回车
-								runtext2.setKerning(1);
-
-								XWPFRun runtext3 = paragraph.insertNewRun(1);
-//								runtext3.getCTR().addNewRPr().addNewHighlight().setVal(STHighlightColor.LIGHT_GRAY);
-								// 设置run内容
-								runtext3.setText("该因子的症状表现：" + divisorDesc);
-//								runtext3.setVal(STHighlightColor.DARK_GRAY);
-								runtext3.addCarriageReturn();// 硬回车
-								runtext3.setKerning(1);
-//								runtext3.setColor("d2a112");
-//								CTShd shd = runtext3.getCTR().addNewRPr().addNewShd();
-//								shd.setFill("FFFF00");
-//								runtext3.setText("底纹");
-								
-
-								XWPFRun runtext = paragraph.insertNewRun(1);
-								// 设置run内容
-								runtext.setText((divisors.size() - i) + "." + divisorName);
-								runtext.addCarriageReturn();// 硬回车
-								runtext.setBold(true);
-								runtext.setKerning(2);
-//								runtext.setUnderline(UnderlinePatterns.SINGLE);
-
-							}
-							run.setText(text.replace("因子得分情况详细说明替换位置", ""), 0);
-							break;
-
-						}
+//						if (text.contains("因子得分情况详细说明替换位置")) {
+//							for (int i = 0; i < divisors.size(); i++) {
+//								com.alibaba.fastjson.JSONObject divisor = divisors.getJSONObject(i);
+//								String divisorName = divisor.getString("divisorName");
+//								String divisorDesc = divisor.getString("divisorDesc");
+//								String divisorAverag = divisor.getString("divisorAverag");
+//								String contentZh = divisor.getString("contentZh");
+//								String contentEn = divisor.getString("contentEn");
+////								2.	偏执
+////								该因子的症状表现：比如说觉得有人在背后议论自己，不相信他人，认为别人在和自己作对
+////								你在该因子的得分为（  A  ），表明该方面（     B     ），（     C     ）
+////								XWPFParagraph newParagraph = newParagraph(paragraph);
+////								newParagraph.setIndentationLeft(0);
+////								newParagraph.setIndentationHanging(0);
+////								newParagraph.setAlignment(ParagraphAlignment.LEFT);
+////								newParagraph.setWordWrap(true);
+//								// 在段落中新插入一个run,这里的run我理解就是一个word文档需要显示的个体,里面可以放文字,参数0代表在段落的最前面插入
+//								XWPFRun runtext2 = paragraph.insertNewRun(1);
+//								// 设置run内容
+//								runtext2.setText("你在该因子的得分为" + divisorAverag + ",表明该方面" + contentZh + "。" + contentEn);
+//								runtext2.addCarriageReturn();// 硬回车
+//								runtext2.addCarriageReturn();// 硬回车
+//								runtext2.setKerning(1);
+//
+//								XWPFRun runtext3 = paragraph.insertNewRun(1);
+////								runtext3.getCTR().addNewRPr().addNewHighlight().setVal(STHighlightColor.LIGHT_GRAY);
+//								// 设置run内容
+//								runtext3.setText("该因子的症状表现：" + divisorDesc);
+////								runtext3.setVal(STHighlightColor.DARK_GRAY);
+//								runtext3.addCarriageReturn();// 硬回车
+//								runtext3.setKerning(1);
+////								runtext3.setColor("d2a112");
+////								CTShd shd = runtext3.getCTR().addNewRPr().addNewShd();
+////								shd.setFill("FFFF00");
+////								runtext3.setText("底纹");
+//								
+//
+//								XWPFRun runtext = paragraph.insertNewRun(1);
+//								// 设置run内容
+//								runtext.setText((divisors.size() - i) + "." + divisorName);
+//								runtext.addCarriageReturn();// 硬回车
+//								runtext.setBold(true);
+//								runtext.setKerning(2);
+////								runtext.setUnderline(UnderlinePatterns.SINGLE);
+//
+//							}
+//							run.setText(text.replace("因子得分情况详细说明替换位置", ""), 0);
+//							break;
+//
+//						}
 					}
 				}
 				for (XWPFRun run : runs) {
@@ -396,8 +396,7 @@ public class PoiWordTools {
 
 		/** ----------------------------处理段落------------------------------------ **/
 
-		/** ----------------------------处理段落------------------------------------ **/
-		List<XWPFParagraph> paragraphList = doc.getParagraphs();
+		/** ----------------------------处理段落------------------------------------ **/		List<XWPFParagraph> paragraphList = doc.getParagraphs();
 		if (paragraphList != null && paragraphList.size() > 0) {
 			for (XWPFParagraph paragraph : paragraphList) {
 				List<XWPFRun> runs = paragraph.getRuns();
@@ -406,9 +405,12 @@ public class PoiWordTools {
 					if (text != null) {
 						// 替换文本信息
 						String tempText = text;
-						String key = tempText.replaceAll("@$", "").replaceAll("@$", "");
-						if (!StringUtils.isEmpty(textMap.get(key))) {
-							run.setText(textMap.get(key), 0);
+						if(tempText.contains("@$")){
+						System.out.println("tempText:"+tempText);
+						String key =  tempText.substring(tempText.indexOf("@$")+2,tempText.lastIndexOf("@$"));
+						System.out.println(textMap.get(key));
+						if (tempText.contains(key)) {
+							run.setText(tempText.replace(key, textMap.get(key))  , 0);
 						}
 						String imgkey = tempText.replaceAll("@image", "");
 						if (!StringUtils.isEmpty(imgMap.get(imgkey))) {		
@@ -422,6 +424,7 @@ public class PoiWordTools {
 								e.printStackTrace();
 							}
 						}
+					}
 					}
 				}
 

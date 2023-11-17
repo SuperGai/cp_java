@@ -155,35 +155,6 @@ public class EvaluatoionUserBean implements Serializable {
      */
     private String personType;
     
-    /**
-     * 邮箱
-     */
-    @ExcelField("邮箱")
-    @ApiModelProperty(value = "邮箱")
-    private String email;
-    
-    /**
-     * 年龄
-     */
-    @ExcelField("年龄")
-    @ApiModelProperty(value = "年龄")
-    private int age;
-
-    
-    /**
-     * 公司
-     */
-    @ExcelField("公司")
-    @ApiModelProperty(value = "公司")
-    private String companyName;
-    
-    
-    /**
-     * 公司
-     */
-    @ExcelField("职务")
-    @ApiModelProperty(value = "职务")
-    private String position;
     
 
 }

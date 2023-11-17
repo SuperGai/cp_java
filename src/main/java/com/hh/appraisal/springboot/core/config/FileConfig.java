@@ -22,12 +22,13 @@ public class FileConfig {
 	public String pdfUrl;
 	
 //	//模版地址
-//	@Value("${report.model}")
-	public String reportModel="C://Program Files//Java//nginx-1.21.0//html//file//reportmodel//中学生心理健康测评报告.docx";
-//	
+	@Value("${report.model}")
+	public String reportModel;
+//	="/Users/gaigai/Documents/work/项目/精派咨询/心理健康测评报告模板.docx";
 //	//报表输出地址
-//	@Value("${report.out.folder}")
-	public String reportOutFolder="C://Program Files//Java//nginx-1.21.0//html//file//report//";
+	@Value("${report.out.folder}")
+	public String reportOutFolder;
+//	="/Users/gaigai/Documents/work/项目/精派咨询/";
 	
 	
 	

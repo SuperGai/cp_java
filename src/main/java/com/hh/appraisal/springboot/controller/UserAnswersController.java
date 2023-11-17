@@ -28,6 +28,7 @@ import com.hh.appraisal.springboot.bean.EvaluatoionUserBean;
 import com.hh.appraisal.springboot.bean.QuestionAllBean;
 import com.hh.appraisal.springboot.bean.UserAnswersBean;
 import com.hh.appraisal.springboot.service.GeneraPdfAsyncTaskService;
+import com.hh.appraisal.springboot.service.GeneraPdfAsyncTaskService2;
 import com.hh.appraisal.springboot.service.GeneraPdfAsyncTaskService3;
 import com.hh.appraisal.springboot.service.UserAnswersService;
 import com.wuwenze.poi.ExcelKit;
@@ -49,7 +50,7 @@ public class UserAnswersController {
 	GeneraPdfAsyncTaskService generaPdfAsyncTaskService;
 	
 	@Autowired
-	GeneraPdfAsyncTaskService3 generaPdfAsyncTaskService2;
+	GeneraPdfAsyncTaskService2 generaPdfAsyncTaskService2;
 	
 
 	public UserAnswersController(UserAnswersService userAnswersService) {
@@ -238,7 +239,7 @@ public class UserAnswersController {
 //		bean.setEvaluationUserCode(evaluationUserCode);
 //		List<UserAnswersBean> list = userAnswersService.findList(bean);
 		try {
-			generaPdfAsyncTaskService.executeAsyncTask(evaluationUserCode);
+			generaPdfAsyncTaskService2.executeAsyncTask(evaluationUserCode);
 //			generaPdfAsyncTaskService2.executeAsyncTask(evaluationUserCode);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

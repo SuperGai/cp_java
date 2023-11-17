@@ -157,7 +157,7 @@ public class WxMiniAppUserController {
 		} else {
 			colConfigName = "OTHER_PRODUCT_USER_INFO";
 		}
-		restMap.put("product", product);
+		long spendTime = 0;
 		// 判断用户是否填写个人信息
 		if (info == null) {
 			restMap.put("isCompleteUserInfo", 0);
@@ -169,13 +169,24 @@ public class WxMiniAppUserController {
 				if (data != null && data.equalsIgnoreCase("Y")) {
 					infoColsName.add(dictBean.get(key).getValue());
 				}
-			}
+			}		
 			// 个人信息需要填写哪些字段
 			restMap.put("infocols", infoColsName);
 		} else {
 			restMap.put("isCompleteUserInfo", 1);
+			
+		}
+		//如果题目序号为1时，说明刚开始答题
+		if(questionNo<=1) {
+			long answerTime = product.getAnswerTime() * 60;
+			product.setAnswerTime((int) answerTime);
+		}else {
+			spendTime = userAnswersMapper.getSpendTime(code);
+			long answerTime = product.getAnswerTime() * 60 - spendTime;
+			product.setAnswerTime((int) answerTime);
 		}
 
+		restMap.put("product", product);
 		restMap.put("token", JwtTokenBean.JWT_TOKEN_PREFIX + jwtToken);
 		restMap.put("logo", school.getLogo());
 		restMap.put("EvaluatoionCode", userInfo.getEvaluatoionCode());
