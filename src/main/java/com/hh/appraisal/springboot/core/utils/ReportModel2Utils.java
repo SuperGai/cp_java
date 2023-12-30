@@ -16,6 +16,9 @@ import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
+import com.aspose.words.*;
+import com.hh.appraisal.springboot.bean.DivisorCatBean;
+import com.spire.xls.core.converter.spreadsheet.charts.SeriesCollection;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.ConditionalFormatting;
@@ -30,39 +33,20 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.aspose.words.Cell;
-import com.aspose.words.CellMerge;
-import com.aspose.words.Chart;
-import com.aspose.words.ChartSeriesCollection;
-import com.aspose.words.ChartType;
-import com.aspose.words.Document;
-import com.aspose.words.DocumentBuilder;
-import com.aspose.words.FontInfoCollection;
-import com.aspose.words.ImportFormatMode;
-import com.aspose.words.Node;
-import com.aspose.words.NodeCollection;
-import com.aspose.words.NodeImporter;
-import com.aspose.words.NodeType;
-import com.aspose.words.Paragraph;
-import com.aspose.words.Range;
-import com.aspose.words.Row;
-import com.aspose.words.RowCollection;
-import com.aspose.words.Run;
-import com.aspose.words.Shape;
-import com.aspose.words.ShapeType;
-import com.aspose.words.Style;
-import com.aspose.words.Table;
-import com.aspose.words.VerticalAlignment;
-import com.aspose.words.WrapType;
+
 import com.hh.appraisal.springboot.entity.EvaluatoionUser;
 import com.hh.appraisal.springboot.entity.ReportConfig;
-import com.hh.appraisal.springboot.utils.WordToPdf;
 
 import cn.hutool.core.util.ObjectUtil;
 
 public class ReportModel2Utils {
 
 	static private String STYLE_TITLE_VALUE = "Heading 1";
+
+	//向左靠齐
+	static private String STYLE_JP01_VALUE = "jp01";
+
+	static private String STYLE_TITLE2_VALUE = "Heading 2";
 	static private String STYLE_TEXT_VALUE = "正文样式";
 
 	static Document currentDocument = null;
@@ -109,7 +93,7 @@ public class ReportModel2Utils {
 			userInfoArray.add(userObjRow1);
 			userInfoArray.add(userObjRow2);
 		}
-		addRowAndReplaceCellText(userInfoTable, userInfoArray);
+//		addRowAndReplaceCellText(userInfoTable, userInfoArray);
 	}
 
 	// 模板方式实现
@@ -291,8 +275,8 @@ public class ReportModel2Utils {
 //		addAllParagraphsFromModelFile(currentDocument,
 //				"/Users/gaigai/Documents/Study/UKM/03 index/report/测评报告模板_自我管理能力.docx");
 
-		dealExcel("/Users/gaigai/Documents/Study/UKM/03 index/report/table.xlsx",
-				"/Users/gaigai/Documents/Study/UKM/03 index/report/tablegaigai.xlsx", catItems);
+//		dealExcel("/Users/gaigai/Documents/Study/UKM/03 index/report/table.xlsx",
+//				"/Users/gaigai/Documents/Study/UKM/03 index/report/tablegaigai.xlsx", catItems);
 //		WordToPdf.xls2image("/Users/gaigai/Documents/Study/UKM/03 index/report/tablegaigai.xlsx",
 //				"/Users/gaigai/Documents/Study/UKM/03 index/report/tablegaigai.png");
 		// 替换文本
@@ -300,8 +284,8 @@ public class ReportModel2Utils {
 		// 添加段落
 		Paragraph para = new Paragraph(currentDocument);
 		currentDocument.getFirstSection().getBody().appendChild(para);
-		// 插入图片
-		insertImage(para, "/Users/gaigai/Documents/Study/UKM/03 index/report/tablegaigai.png");
+//		// 插入图片
+//		insertImage(para, "/Users/gaigai/Documents/Study/UKM/03 index/report/tablegaigai.png");
 
 		// 添加关于报告
 		addText(currentDocument, "关于报告", STYLE_TITLE_VALUE);
@@ -354,13 +338,13 @@ public class ReportModel2Utils {
 		// 将字节数组中的图片插入到文档
 		// 创建形状，设置图片大小和布局
 		Shape shape = new Shape(para.getDocument(), ShapeType.IMAGE);
-		shape.getImageData().setImage(imageBytes);
+//		shape.getImageData().setImage(imageBytes);
 		shape.setWidth(targetWidth); // 设置图片宽度，单位为磅（points）
 		shape.setHeight(scaledHeight); // 设置图片高度，单位为磅（points）
 		shape.setWrapType(WrapType.SQUARE); // 设置图片环绕方式
 		// 将形状插入段落
 		para.appendChild(shape);
-		shape.getImageData().setImage(imageBytes);
+//		shape.getImageData().setImage(imageBytes);
 	}
 
 	// 将图片加载到字节数组
@@ -406,6 +390,7 @@ public class ReportModel2Utils {
 		for (int rowIndex = startRowIndex + 1; rowIndex <= endRowIndex; rowIndex++) {
 			builder.moveToCell(tableIndex, rowIndex, colIndex, 0);
 			builder.getCellFormat().setVerticalMerge(CellMerge.PREVIOUS);// 被合并的单元格
+			builder.getCellFormat().setVerticalAlignment(CellVerticalAlignment.CENTER);
 		}
 	}
 
@@ -478,6 +463,7 @@ public class ReportModel2Utils {
 			if(value==null) {
 				value="空值";
 			}
+//			range.replace(key, value, false, false);
 			range.replace("@$"+key+"@$", value, false, false);
 		}
 	}
@@ -506,9 +492,9 @@ public class ReportModel2Utils {
 
 	/**
 	 * 
-	 * @param modelFileUrl
 	 * @param currentDocument
 	 * @param text
+	 * @param style
 	 * @throws Exception
 	 */
 	public static void addHtmlText(Document currentDocument, String text,String style) throws Exception {
@@ -542,7 +528,7 @@ public class ReportModel2Utils {
 	 * 添加所有内容从模版文件
 	 * 
 	 * @param currentDocument
-	 * @param text
+	 * @param currentDocument
 	 * @throws Exception
 	 */
 	public static void addAllParagraphsFromModelFile(Document anotherDocument, Document currentDocument)
@@ -617,6 +603,8 @@ public class ReportModel2Utils {
 			seriesColl.get(i).getDataLabels().add(0);
 			seriesColl.get(i).getDataLabels().get(0).setShowValue(true);
 		}
+//		UpdateChartExample(currentDocument, valueMap);
+
 	}
 
 	/**
@@ -637,16 +625,18 @@ public class ReportModel2Utils {
 
 		// Import the node from the source document to the destination document
 		NodeImporter importer = new NodeImporter(srcDoc, destDoc, ImportFormatMode.KEEP_SOURCE_FORMATTING);
-
+		String[] categories = new String[] { "" };
 		for (int i = 0; i < nodeCollection.getCount(); i++) {
 			Shape srcShape = (Shape) nodeCollection.get(i);
-			Chart srcChart = srcShape.getChart();
+//			Chart srcChart = srcShape.getChart();
 			ChartSeriesCollection chartSeriesCollection = srcShape.getChart().getSeries();
-			chartSeriesCollection.clear();
+//			chartSeriesCollection.clear();
 			// 赋值
 			for (String key : valueMap.keySet()) {
 				double value = valueMap.get(key);
-				chartSeriesCollection.add(key, new double[] { 0 }, new double[] { value });
+
+				chartSeriesCollection.add(key, categories, new double[] { value }).getMarker();
+//				seriesColl.add(key, new double[] { 0 }, new double[] { value });
 			}
 //			// Insert the imported node into the destination document
 			Node newNode = importer.importNode(srcShape, true);
@@ -670,24 +660,27 @@ public class ReportModel2Utils {
 		int rowNum = sheet.getPhysicalNumberOfRows();
 		int firstNum = 1;
 		for (int i = 0; i < catItems.size(); i++) {
+			JSONObject catItem = catItems.getJSONObject(i);
+			String catName = catItem.getString("catName");
+			if(catName.equals("掩饰性")||catName.equals("逻辑推理")){
+				continue;
+			}
 			if (i > 0) {
 				for (int j = 0; j < 3; j++) {
-					System.out.println(j + "test111");
 					copyRow(wb, sheet, j, sheet.getPhysicalNumberOfRows());
 				}
 				firstNum = sheet.getPhysicalNumberOfRows() - 2;
 				System.out.println(firstNum + "test");
 			}
 			org.apache.poi.ss.usermodel.Row catRow = sheet.getRow(firstNum);
-			JSONObject catItem = catItems.getJSONObject(i);
 			System.out.println(catItem);
-			String catName = catItem.getString("catName");
 			double catValue = catItem.getDouble("catValue");
 			String catDesc = catItem.getString("catDesc");
 			catRow.getCell(0).setCellValue(catName);
 			catRow.getCell(1).setCellValue(catValue);
 			org.apache.poi.ss.usermodel.Row descRow = sheet.getRow(firstNum + 1);
 			descRow.getCell(0).setCellValue(catDesc);
+			descRow.setHeight((short) 2200);
 			JSONArray items = catItem.getJSONArray("items");
 			boolean firstRow = true;
 			for (int j = 0; j < items.size(); j++) {
@@ -718,8 +711,17 @@ public class ReportModel2Utils {
 
 		}
 		sheet.setForceFormulaRecalculation(true);// 刷新公式
+
+//		// 自适应行高
+//		for (int i = 0; i < 2; i++) {
+//			org.apache.poi.ss.usermodel.Row row= sheet.getRow(i);
+//			for (int j = 0; j <row.getLastCellNum();j++) {
+//				sheet.autoSizeColumn(j);
+//			}
+//		}
 		wb.setForceFormulaRecalculation(true);
 		XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
+		sheet.autoSizeColumn(0);
 		FileOutputStream o = new FileOutputStream(outXlsUrl);
 		try {
 			wb.write(o);
@@ -804,6 +806,22 @@ public class ReportModel2Utils {
 		return targetRow;
 	}
 
+
+	/**
+	 * 插入综合评价
+	 *
+	 * @param tilte
+	 * @param text
+	 * @throws Exception
+	 */
+	public static void insertZHPJ(String tilte, String text) throws Exception {
+		// 添加综合评价模块
+		addText(currentDocument, "", STYLE_TEXT_VALUE);
+		addText(currentDocument, tilte, STYLE_TITLE_VALUE);
+		addText(currentDocument,text,STYLE_TEXT_VALUE);
+
+	}
+
 	/**
 	 * 插入答题情况
 	 * 
@@ -813,6 +831,10 @@ public class ReportModel2Utils {
 	 */
 	public static void insertDTQK(String tilte, String dtqkModelPath) throws Exception {
 		// 添加答题情况模块
+		DocumentBuilder builder = new DocumentBuilder(currentDocument);
+		// 在文档末尾插入新的一页（分页符）
+		builder.moveToDocumentEnd();
+		builder.insertBreak(BreakType.PAGE_BREAK);
 		addText(currentDocument, tilte, STYLE_TITLE_VALUE);
 		addModelTable(currentDocument, dtqkModelPath);
 		addAllParagraphsFromModelFile(currentDocument, dtqkModelPath);
@@ -826,93 +848,169 @@ public class ReportModel2Utils {
 	 * @throws Exception
 	 */
 	public static void insertFXBG(String tilte, String score) throws Exception {
-		// 逻辑推理
-		addText(currentDocument, "", STYLE_TEXT_VALUE);
-		addText(currentDocument, tilte, STYLE_TITLE_VALUE);
-		addText(currentDocument,
-				"逻辑推理能是以敏锐的思考分析、快捷的反应、迅速地掌握问题的核心，在最短时间找出其事物内在的逻辑关系，从而推理出符合逻辑关系的结论的能力。具备了逻辑推理能力，才能对事物做出符合逻辑关系的正确判断，因此逻辑推理能力也是个人重要的基础素质之一。"
-						+ "在人才评估中，逻辑推理能力经常用于评估人才的智商/潜力。",
-				STYLE_TEXT_VALUE);
-		addText(currentDocument, "你的逻辑得分为:" + score, STYLE_TEXT_VALUE);
+
 	}
 
 	/**
-	 * 插入指标得分情况
-	 * 
-	 * @param title
-	 * @param catItems
-	 * @throws Exception
-	 */
+	 //	 * 插入指标得分情况
+	 //	 *
+	 //	 * @param title
+	 //	 * @param catItems
+	 //	 * @throws Exception
+	 //	 */
 	public static void insertZBDFQK(String title, JSONArray catItems) throws Exception {
-		// 指标得分情况
-		addText(currentDocument, "", STYLE_TEXT_VALUE);
-		addText(currentDocument, title, STYLE_TITLE_VALUE);
+		DocumentBuilder builder = new DocumentBuilder(currentDocument);
+		builder.moveToDocumentEnd();
 		// 添加表格
-		Table table = new Table(currentDocument);
-		currentDocument.getFirstSection().getBody().appendChild(table);
-		// 添加表头行
-		Row headerRow = new Row(currentDocument);
-		table.appendChild(headerRow);
-		headerRow.appendChild(createCell(currentDocument, "指标分类"));
-		headerRow.appendChild(createCell(currentDocument, ""));
-		headerRow.appendChild(createCell(currentDocument, "指标"));
-		headerRow.appendChild(createCell(currentDocument, "得分"));
-		headerRow.appendChild(createCell(currentDocument, "得分"));
-		headerRow.appendChild(createCell(currentDocument, "得分"));
-		headerRow.appendChild(createCell(currentDocument, "得分"));
-		headerRow.appendChild(createCell(currentDocument, "得分"));
-		headerRow.appendChild(createCell(currentDocument, "得分"));
-		headerRow.appendChild(createCell(currentDocument, "得分"));
-		headerRow.appendChild(createCell(currentDocument, "得分"));
-		headerRow.appendChild(createCell(currentDocument, "得分"));
-		// 处理表头
-		int tableIndex = 2;
-		mergeHorizontalRange(currentDocument, tableIndex, 0, 0, 1);
-		mergeHorizontalRange(currentDocument, tableIndex, 0, 3, 11);
-		// 处理表体
-		int startRow = 1;
+		NodeCollection allNodes = currentDocument.getChildNodes(NodeType.TABLE, true);
+		Table table =(Table) allNodes.get(3);
+//		// 遍历所有节点，获取表格
+//		for (Node node : allNodes.toArray()) {
+//			if (node.getNodeType() == NodeType.TABLE) {
+//				table = (Table) node;
+//			}
+//		}
+		int startRow=0;
 		for (int i = 0; i < catItems.size(); i++) {
 			JSONObject rowData = catItems.getJSONObject(i);
 			JSONArray items = rowData.getJSONArray("items");
+			if(rowData.getString("catName").contains("掩饰性")){
+				continue;
+			}
 			for (int j = 0; j < items.size(); j++) {
+				System.out.println("i:"+i+",j:"+j);
 				JSONObject item = items.getJSONObject(j);
-				Row dataRow = new Row(currentDocument);
-				table.appendChild(dataRow);
-				dataRow.appendChild(createCell(currentDocument, rowData.getString("catName")));
-				dataRow.appendChild(createCell(currentDocument, rowData.getString("catValue")));
-				dataRow.appendChild(createCell(currentDocument, item.getString("key")));
+				Row dataRow = table.getRows().get(startRow);
+				System.out.println("dataRow:"+dataRow.getText());
+				Cell cell= dataRow.getCells().get(0);
+				if(cell!=null&&cell.getFirstParagraph()!=null&&cell.getFirstParagraph().getRuns().getCount()>0) {
+//					cell.getFirstParagraph().getRuns().get(0).setText(rowData.getString("catName"));
+				}
+				Cell cell1= dataRow.getCells().get(1);
+				if(cell1!=null&&cell.getFirstParagraph()!=null&&cell.getFirstParagraph().getRuns().getCount()>0) {
+					Double catValue = rowData.getDouble("catValue");
+					cell1.getFirstParagraph().getRuns().get(0).setText(catValue.intValue()+"");
+				}
+				Cell cell2= dataRow.getCells().get(2);
+				cell2.getFirstParagraph().getRuns().get(0).setText(item.getString("key"));
 				// 根据得分设置单元格样式
 				long score = Math.round(new Double(item.getString("value"))); // 四舍五入为最接近的整数
 				for (int k = 1; k < 10; k++) {
-					Cell scoreCell = createCell(currentDocument, k + "");
-					dataRow.appendChild(scoreCell);
+					Cell scoreCell=dataRow.getCells().get(2+k);
 					if (score == k) {
-						scoreCell.getCellFormat().getShading().setBackgroundPatternColor(Color.YELLOW);
+						if(score<=3){
+							Color backgroundColor = new Color(244,176,131);
+							scoreCell.getCellFormat().getShading().setBackgroundPatternColor(backgroundColor);
+						}else if(score>3&&score<=6){
+							Color backgroundColor = new Color(255,192,0);
+							scoreCell.getCellFormat().getShading().setBackgroundPatternColor(backgroundColor);
+						}else{
+							Color backgroundColor = new Color(168,208,141);
+							scoreCell.getCellFormat().getShading().setBackgroundPatternColor(backgroundColor);
+						}
+
 					}
 				}
+				startRow++;
 			}
-			int endRow = (startRow + items.size() - 1);
-			mergeVerticalRange(currentDocument, tableIndex, 0, startRow, endRow);
-			mergeVerticalRange(currentDocument, tableIndex, 1, startRow, endRow);
-			startRow = startRow + items.size();
 		}
 	}
+
+
+//	/**
+//	 * 插入指标得分情况
+//	 *
+//	 * @param title
+//	 * @param catItems
+//	 * @throws Exception
+//	 */
+//	public static void insertZBDFQK(String title, JSONArray catItems) throws Exception {
+//		DocumentBuilder builder = new DocumentBuilder(currentDocument);
+//		builder.moveToDocumentEnd();
+//		builder.insertBreak(BreakType.PAGE_BREAK);
+//		// 指标得分情况
+//		addText(currentDocument, "", STYLE_TEXT_VALUE);
+//		addText(currentDocument, title, STYLE_TITLE_VALUE);
+//		// 添加表格
+//		Table table = new Table(currentDocument);
+//		currentDocument.getFirstSection().getBody().appendChild(table);
+//		// 处理表头
+//		int tableIndex = currentDocument.indexOf(table);
+//		// 处理表体
+//		int startRow = 0;
+//		for (int i = 0; i < catItems.size(); i++) {
+//			JSONObject rowData = catItems.getJSONObject(i);
+//			JSONArray items = rowData.getJSONArray("items");
+//			if(rowData.getString("catName").contains("掩饰性")){
+//				continue;
+//			}
+//			for (int j = 0; j < items.size(); j++) {
+//				JSONObject item = items.getJSONObject(j);
+//				Row dataRow = new Row(currentDocument);
+//				table.appendChild(dataRow);
+//				dataRow.appendChild(createCell(currentDocument, rowData.getString("catName")));
+//				dataRow.appendChild(createCell(currentDocument, rowData.getString("catValue")));
+//				dataRow.appendChild(createCell(currentDocument, item.getString("key")));
+//				// 根据得分设置单元格样式
+//				long score = Math.round(new Double(item.getString("value"))); // 四舍五入为最接近的整数
+//				for (int k = 1; k < 10; k++) {
+//					Cell scoreCell = createCell(currentDocument, k + "");
+//					dataRow.appendChild(scoreCell);
+//					scoreCell.getCellFormat().setWidth(80.0);
+//					scoreCell.getCellFormat().setVerticalAlignment(CellVerticalAlignment.CENTER);
+//					Paragraph paragraph3 = scoreCell.getFirstParagraph();
+//					paragraph3.getParagraphFormat().setAlignment(ParagraphAlignment.CENTER);
+//					if (score == k) {
+//						if(score<=3){
+//							Color backgroundColor = new Color(255, 128, 128);
+//							scoreCell.getCellFormat().getShading().setBackgroundPatternColor(backgroundColor);
+//						}else if(score>3&&score<=6){
+//							Color backgroundColor = new Color(255, 204, 51);
+//							scoreCell.getCellFormat().getShading().setBackgroundPatternColor(backgroundColor);
+//						}else{
+//							Color backgroundColor = new Color(109, 197, 133);
+//							scoreCell.getCellFormat().getShading().setBackgroundPatternColor(backgroundColor);
+//						}
+//
+//					}
+//				}
+//			}
+//			int endRow = startRow + (items.size() - 1);
+//			mergeVerticalRange(currentDocument, tableIndex, 0, startRow, endRow);
+//			mergeVerticalRange(currentDocument, tableIndex, 1, startRow, endRow);
+//			startRow = startRow + items.size();
+//		}
+//
+//		//将所有的内容设置居中
+//		for (int i = 0; i < table.getRows().getCount(); i++) {
+//			Row row = table.getRows().get(i);
+//			for (int j = 0; j < row.getCells().getCount(); j++) {
+//				Cell cell = row.getCells().get(j);
+//				for(int k = 0; k < cell.getParagraphs().getCount(); k++) {
+//					Paragraph paragraph3 =cell.getParagraphs().get(k);
+//					paragraph3.getParagraphFormat().setAlignment(ParagraphAlignment.CENTER);
+//				}
+//			}
+//		}
+//	}
 
 	/**
 	 * 综合得分情况（基于测评答题情况成长得分）
 	 * 
 	 * @param title
-	 * @param catArray
+	 * @param catMap
 	 * @throws Exception
 	 */
-	public static void insertZHDFQK(String title, JSONArray catArray) throws Exception {
-		addText(currentDocument, title, STYLE_TITLE_VALUE);
+	public static void insertZHDFQK(String title, Map<String, DivisorCatBean> catMap) throws Exception {
+		addText(currentDocument, title, STYLE_TEXT_VALUE);
 		addText(currentDocument, "", STYLE_TEXT_VALUE);
 		Map<String, Double> shapeMap = new HashMap<String, Double>();
-		for (int i = 0; i < catArray.size(); i++) {
-			JSONObject catObj = catArray.getJSONObject(i);
-			String catName = catObj.getString("catName");
-			double catVale = new Double(catObj.getString("catValue"));
+		for (Map.Entry<String, DivisorCatBean> entry : catMap.entrySet()) {
+			String catName = entry.getValue().getCatName();
+			if(catName.equals("掩饰性")){
+				continue;
+			}
+			double catVale = new Double(entry.getValue().getCatValue());
 			shapeMap.put(catName, catVale);
 		}
 		// 生成图表
@@ -927,22 +1025,174 @@ public class ReportModel2Utils {
 	 * @throws Exception
 	 */
 	public static void insertNLFXBG(String title, JSONArray catItems, String modelPath) throws Exception {
-		// 能力分析报告
-		addText(currentDocument, "", STYLE_TEXT_VALUE);
-		addText(currentDocument, title, STYLE_TITLE_VALUE);
-		String path = modelPath.split("\\.")[0];
-		UUID uuid = UUID.randomUUID();
-		String excelOutPath =
-//				"/Users/gaigai/Documents/Study/UKM/03 index/report/tablegaigai";
-				path + System.currentTimeMillis() + uuid;
-		dealExcel(modelPath, excelOutPath + ".xlsx", catItems);
-		WordToPdf.xls2image(excelOutPath + ".xlsx", excelOutPath + ".png");
-//		// 添加段落
-		Paragraph para = new Paragraph(currentDocument);
-		currentDocument.getFirstSection().getBody().appendChild(para);
-//		// 插入图片
-		insertImage(para, excelOutPath + ".png");
+		// 添加能力分析报告模块
+		// 添加表格
+		NodeCollection allNodes = currentDocument.getChildNodes(NodeType.TABLE, true);
+		int startTable = 0;
+		for (int i = 0; i < catItems.size(); i++) {
+			JSONObject catItem = catItems.getJSONObject(i);
+			String catName = catItem.getString("catName");
+			if(catName.equals("掩饰性")||catName.equals("逻辑推理")){
+				continue;
+			}
+			Table table =(Table) allNodes.get(5+startTable);
+//			//添加头表信息
+//			addText(currentDocument, "", STYLE_TEXT_VALUE);
+//			addText(currentDocument, catName+" "+catItem.getDouble("catValue"), STYLE_TITLE2_VALUE);
+//			addText(currentDocument,  catItem.getString("catDesc"), STYLE_TEXT_VALUE);
+			JSONArray items = catItem.getJSONArray("items");
+			for (int j = 0; j < items.size(); j++) {
+				JSONObject obj = items.getJSONObject(j);
+				String key = obj.getString("key");
+				double value = obj.getDouble("value");
+				String desc = obj.getString("desc");
+				Row dataRow = table.getRows().get(1+j);
+				if(dataRow!=null) {
+					System.out.println(dataRow + "test" + ":" + dataRow.getText());
+					dataRow.getCells().get(0).getParagraphs().get(0).getRuns().get(0).setText(key);
+					dataRow.getCells().get(1).getParagraphs().get(0).getRuns().get(0).setText(value + "");
+					dataRow.getCells().get(2).getParagraphs().get(0).getRuns().get(0).setText(desc);
+				}
+			}
+
+			startTable++;
+		}
 	}
+
+
+//	/**
+//	 * 插入能力分析报告
+//	 * @param title
+//	 * @param catItems
+//	 * @param modelPath
+//	 * @throws Exception
+//	 */
+//	public static void insertNLFXBG(String title, JSONArray catItems, String modelPath) throws Exception {
+//		// 能力分析报告
+//		addText(currentDocument, title, STYLE_TITLE_VALUE);
+//		DocumentBuilder builder = new DocumentBuilder(currentDocument);
+//		builder.moveToDocumentEnd();
+//		for (int i = 0; i < catItems.size(); i++) {
+//			JSONObject catItem = catItems.getJSONObject(i);
+//			String catName = catItem.getString("catName");
+//			if(catName.equals("掩饰性")||catName.equals("逻辑推理")){
+//				continue;
+//			}
+//			//添加头表信息
+//			addText(currentDocument, "", STYLE_TEXT_VALUE);
+//			addText(currentDocument, catName+" "+catItem.getDouble("catValue"), STYLE_TITLE2_VALUE);
+//			addText(currentDocument,  catItem.getString("catDesc"), STYLE_TEXT_VALUE);
+//
+//			String dtqkModelPath="/Users/gaigai/Documents/Study/UKM/03 index/report/能力分析.docx";
+//			addModelTable(currentDocument, dtqkModelPath);
+//			addAllParagraphsFromModelFile(currentDocument, dtqkModelPath);
+//			// 遍历文档中的所有节点
+//			NodeCollection allNodes = currentDocument.getChildNodes(NodeType.ANY, true);
+//			Table table = null;
+//			// 遍历所有节点，获取表格
+//			for (Node node : allNodes.toArray()) {
+//				if (node.getNodeType() == NodeType.TABLE) {
+//					 table = (Table) node;
+//				}
+//			}
+//			// 追加一行到表格
+//			// 添加表头行
+//			Row headerRow = table.getFirstRow();
+//			headerRow.getCells().get(0).getCellFormat().setWidth(100.0);
+//			headerRow.getCells().get(0).getCellFormat().setVerticalAlignment(CellVerticalAlignment.CENTER);
+//			Paragraph paragraph = headerRow.getCells().get(0).getFirstParagraph();
+//			paragraph.getParagraphFormat().setAlignment(ParagraphAlignment.CENTER);
+//
+//			headerRow.getCells().get(1).getCellFormat().setWidth(100.0);
+//			headerRow.getCells().get(1).getCellFormat().setVerticalAlignment(CellVerticalAlignment.CENTER);
+//			Paragraph paragraph2 = headerRow.getCells().get(1).getFirstParagraph();
+//			paragraph2.getParagraphFormat().setAlignment(ParagraphAlignment.CENTER);
+//
+//
+//			headerRow.getCells().get(2).getCellFormat().setWidth(500.0);
+//			headerRow.getCells().get(2).getCellFormat().setVerticalAlignment(CellVerticalAlignment.CENTER);
+//			Paragraph paragraph3 = headerRow.getCells().get(2).getFirstParagraph();
+//			paragraph3.getParagraphFormat().setAlignment(ParagraphAlignment.CENTER);
+//
+//
+//			//			table.appendChild(headerRow);
+////			headerRow.appendChild(createCell(currentDocument, "纬度"));
+////			headerRow.appendChild(createCell(currentDocument, "得分"));
+////			headerRow.appendChild(createCell(currentDocument, "解析"));
+//			JSONArray items = catItem.getJSONArray("items");
+//			boolean isWriteHeader = true;
+//			for (int j = 0; j < items.size(); j++) {
+//				JSONObject obj = items.getJSONObject(j);
+//				String key = obj.getString("key");
+//				double value = obj.getDouble("value");
+//				String desc = obj.getString("desc");
+//				Row dataRow = new Row(currentDocument);
+//
+//
+//				dataRow.getRowFormat().getBorders().clearFormatting();
+//
+//				table.appendChild(dataRow);
+//				Cell cell= createCell(currentDocument, key);
+//				cell.getCellFormat().setWidth(100.0);
+//				cell.getCellFormat().setVerticalAlignment(CellVerticalAlignment.CENTER);
+//				cell.getCellFormat().getShading().setBackgroundPatternColor(Color.LIGHT_GRAY);
+//				Paragraph pcell1 = cell.getFirstParagraph();
+//				pcell1.getParagraphFormat().setAlignment(ParagraphAlignment.CENTER);
+//
+//
+//				dataRow.appendChild(cell);
+//
+//				Cell cell2= createCell(currentDocument, value+"");
+//				cell2.getCellFormat().setWidth(100.0);
+//				cell2.getCellFormat().setVerticalAlignment(CellVerticalAlignment.CENTER);
+//				Paragraph pcell2 = cell2.getFirstParagraph();
+//				pcell2.getParagraphFormat().setAlignment(ParagraphAlignment.CENTER);
+//
+//				dataRow.appendChild(cell2);
+//
+//				Cell cell3= createCell(currentDocument, desc+"");
+//				cell3.getCellFormat().setWidth(500.0);
+//				cell3.getCellFormat().setVerticalAlignment(CellVerticalAlignment.CENTER);
+//				Paragraph pcell3 = cell3.getFirstParagraph();
+//				pcell3.getParagraphFormat().setAlignment(ParagraphAlignment.CENTER);
+//
+//				dataRow.appendChild(cell3);
+//
+//				for (int k = 0; k < dataRow.getCells().getCount(); k++) {
+//					if(isWriteHeader) {
+//						dataRow.getCells().get(k).getCellFormat().getShading().setBackgroundPatternColor(Color.white);
+//
+//					}else{
+//						Color backgroundColor = new Color(192, 192, 192); // 淡灰色的 RGB 颜色值
+//						dataRow.getCells().get(k).getCellFormat().getShading().setBackgroundPatternColor(backgroundColor);
+//					}
+//				}
+//				if(isWriteHeader){
+//					isWriteHeader=false;
+//				}else{
+//					isWriteHeader=true;
+//				}
+//			}
+//
+//		}
+//
+
+
+
+
+//		String path = modelPath.split("\\.")[0];
+//		UUID uuid = UUID.randomUUID();
+//		String excelOutPath =
+////				"/Users/gaigai/Documents/Study/UKM/03 index/report/tablegaigai";
+//				path + System.currentTimeMillis() + uuid;
+//		dealExcel(modelPath, excelOutPath + ".xlsx", catItems);
+//		WordToPdf.xls2image(excelOutPath + ".xlsx", excelOutPath + ".png");
+//		// 添加段落
+//		Paragraph para = new Paragraph(currentDocument);
+//		currentDocument.getFirstSection().getBody().appendChild(para);
+//		// 插入图片
+//		insertImage(para, excelOutPath + ".png");
+//	}
 
 	/**
 	 * hasConditionalFormatting

@@ -26,4 +26,6 @@ public class DivisorCatItemBean  implements Serializable {
     
     private String normCode;
 
+    private String desc;
+
 }

@@ -176,7 +176,6 @@ public class PoiWordTools {
 	 * 读取文档中表格
 	 * 
 	 * @param filePath doc路径
-	 * @param set      第几个表格
 	 */
 	public void read(XWPFDocument doc, String filePath, String tableName) {
 		// 获取word中的所有段落与表格

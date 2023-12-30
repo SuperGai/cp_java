@@ -111,6 +111,9 @@ public interface UserAnswersMapper extends BaseMapper<UserAnswers> {
 	@Select("SELECT  I.CONTENT_ZH FROM DIVISOR N,DIVISOR_ITEM I WHERE N.DIVISOR_NAME='掩饰性' AND N.`CODE`=I.DIVISOR_CODE AND I.VALUE_START <=  #{score} AND  #{score} <= I.VALUE_END ")
 	String getYsxDesc(@Param("EVALUATOION_CODE") String EVALUATOION_CODE,@Param("score") long score);
 
+
+	@Select("SELECT  I.CONTENT_ZH FROM DIVISOR N,DIVISOR_ITEM I WHERE N.DIVISOR_NAME=#{divisiorName} AND N.`CODE`=I.DIVISOR_CODE AND  #{score}>= I.VALUE_START  AND  #{score} < I.VALUE_END ")
+	String getDivisionDesc(@Param("divisiorName") String divisiorName,@Param("score") long score);
 	
 //	@Select("SELECT SUM(QUESTION_OPTIONS.DIVISOR_VALUE) AS DIVISOR_SCORE DIVISOR.DIVISOR_DESC  "
 //			+ "FROM USER_ANSWERS JOIN QUESTION ON USER_ANSWERS.QUESTION_CODE = QUESTION.CODE "
@@ -157,114 +160,134 @@ public interface UserAnswersMapper extends BaseMapper<UserAnswers> {
 //	List<DivisorCatItemBean> getDivisorInfo(@Param("EVALUATOION_CODE") String EVALUATOION_CODE,@Param("DIVISOR_CAT_NAME") String DIVISOR_CAT_NAME);
 //	
 	
-	@Select("SELECT\n"
-			+ "	qo.divisor_value AS \n"
-			+ "VALUE\n"
-			+ "	,\n"
-			+ "	d.divisor_cat,d.norm_code,\n"
-			+ "	d.divisor_name \n"
-			+ "FROM\n"
-			+ "	user_answers u,\n"
-			+ "	question q,\n"
-			+ "	question_options qo,\n"
-			+ "	divisor d \n"
-			+ "WHERE\n"
-			+ "	u.question_code = q.`code` \n"
-			+ "	AND q.`code` = qo.question_code \n"
-			+ "	AND q.divisor_code = d.`code` \n"
-			+ "	AND u.question_options_code = qo.`code` \n"
-			+ "	AND q.question_type = 'SELECT' \n"
-			+ "	AND u.evaluation_user_code = #{EVALUATOION_CODE} \n"
-			+ "	AND u.is_complete = 'Y' \n"
-			+ "	AND q.valid = 1 \n"
-			+ "	AND qo.valid = 1 \n"
-			+ "	AND d.valid = 1 UNION ALL\n"
-			+ "SELECT\n"
-			+ "CASE\n"
-			+ "		\n"
-			+ "	WHEN\n"
-			+ "		u.`value` = qo.value_zh THEN\n"
-			+ "			1 ELSE 0 \n"
-			+ "		END AS VALUE,d.divisor_cat,d.norm_code,d.divisor_name \n"
-			+ "	FROM\n"
-			+ "		user_answers u\n"
-			+ "		INNER JOIN question q ON u.question_code = q.`code`\n"
-			+ "		INNER JOIN question_options qo ON q.`code` = qo.question_code\n"
-			+ "		INNER JOIN divisor d ON q.divisor_code = d.`code` \n"
-			+ "	WHERE\n"
-			+ "		q.question_type = 'INPUT' \n"
-			+ "		AND u.evaluation_user_code = #{EVALUATOION_CODE} \n"
-			+ "		AND q.valid = 1 \n"
-			+ "		AND qo.valid = 1 \n"
-			+ "		AND d.valid = 1\n"
-			+ "	UNION ALL\n"
-			+ "SELECT\n"
-			+ "	col2 AS \n"
-			+ "VALUE ,\n"
-			+ "	n.divisor_cat,\n"
-			+ "	n.norm_code,\n"
-			+ "	n.divisor_name \n"
-			+ "FROM\n"
-			+ "	(\n"
-			+ "	SELECT\n"
-			+ "		SUBSTRING_INDEX( SUBSTRING_INDEX( bb.`value`, '&', 1 ), ':', 1 ) AS col1,\n"
-			+ "		SUBSTRING_INDEX( SUBSTRING_INDEX( bb.`value`, '&', 1 ), ':', - 1 ) AS col2 \n"
-			+ "	FROM\n"
-			+ "		(\n"
-			+ "		SELECT DISTINCT\n"
-			+ "			u.`value`,\n"
-			+ "			q.question_code,\n"
-			+ "			d.divisor_cat,\n"
-			+ "			d.norm_code \n"
-			+ "		FROM\n"
-			+ "			user_answers u,\n"
-			+ "			question q,\n"
-			+ "			question_options qo,\n"
-			+ "			divisor d \n"
-			+ "		WHERE\n"
-			+ "			u.question_code = q.`code` \n"
-			+ "			AND q.`code` = qo.question_code \n"
-			+ "			AND q.question_type = 'OPTION_INPUT' \n"
-			+ "			AND qo.divisor_code = d.`code` \n"
-			+ "			AND u.evaluation_user_code = #{EVALUATOION_CODE} \n"
-			+ "			AND q.valid = 1 \n"
-			+ "			AND qo.valid = 1 \n"
-			+ "			AND d.valid = 1 \n"
-			+ "		ORDER BY\n"
-			+ "			q.question_code \n"
-			+ "		) AS bb \n"
-			+ "	UNION ALL\n"
-			+ "	SELECT\n"
-			+ "		SUBSTRING_INDEX( SUBSTRING_INDEX( bb.`value`, '&', -1 ), ':', 1 ) AS col1,\n"
-			+ "		SUBSTRING_INDEX( SUBSTRING_INDEX( bb.`value`, '&', -1 ), ':', - 1 ) AS col2\n"
-			+ "	FROM\n"
-			+ "		(\n"
-			+ "		SELECT DISTINCT\n"
-			+ "			u.`value`,\n"
-			+ "			q.question_code \n"
-			+ "		FROM\n"
-			+ "			user_answers u,\n"
-			+ "			question q,\n"
-			+ "			question_options qo,\n"
-			+ "			divisor d \n"
-			+ "		WHERE\n"
-			+ "			u.question_code = q.`code` \n"
-			+ "			AND q.`code` = qo.question_code \n"
-			+ "			AND q.question_type = 'OPTION_INPUT' \n"
-			+ "			AND qo.divisor_code = d.`code` \n"
-			+ "			AND u.evaluation_user_code = #{EVALUATOION_CODE} \n"
-			+ "			AND q.valid = 1 \n"
-			+ "			AND qo.valid = 1 \n"
-			+ "			AND d.valid = 1 \n"
-			+ "		ORDER BY\n"
-			+ "			q.question_code \n"
-			+ "		) AS bb \n"
-			+ "	) AS cc,\n"
-			+ "	question_options p,\n"
-			+ "	divisor n \n"
-			+ "WHERE\n"
-			+ "	cc.col1 = p.`code` \n"
-			+ "	AND p.divisor_code = n.`code`")
+	@Select("SELECT\n" +
+			"\t* \n" +
+			"FROM\n" +
+			"\t(\n" +
+			"\tSELECT\n" +
+			"\t\tqo.divisor_value AS \n" +
+			"\tVALUE\n" +
+			"\t\t,\n" +
+			"\t\td.divisor_cat,\n" +
+			"\t\td.norm_code,\n" +
+			"\t\td.divisor_name,\n" +
+			"\t\td.orderno \n" +
+			"\tFROM\n" +
+			"\t\tuser_answers u,\n" +
+			"\t\tquestion q,\n" +
+			"\t\tquestion_options qo,\n" +
+			"\t\tdivisor d \n" +
+			"\tWHERE\n" +
+			"\t\tu.question_code = q.`code` \n" +
+			"\t\tAND q.`code` = qo.question_code \n" +
+			"\t\tAND q.divisor_code = d.`code` \n" +
+			"\t\tAND u.question_options_code = qo.`code` \n" +
+			"\t\tAND q.question_type = 'SELECT' \n" +
+			"\t\tAND u.evaluation_user_code = #{EVALUATOION_CODE}\n" +
+			"\t\tAND u.is_complete = 'Y' \n" +
+			"\t\tAND q.valid = 1 \n" +
+			"\t\tAND qo.valid = 1 \n" +
+			"\t\tAND d.valid = 1 UNION ALL\n" +
+			"\tSELECT\n" +
+			"\tCASE\n" +
+			"\t\t\t\n" +
+			"\t\tWHEN\n" +
+			"\t\t\tu.`value` = qo.value_zh THEN\n" +
+			"\t\t\t\t1 ELSE 0 \n" +
+			"\t\t\tEND AS \n" +
+			"\t\tVALUE\n" +
+			"\t\t\t,\n" +
+			"\t\t\td.divisor_cat,\n" +
+			"\t\t\td.norm_code,\n" +
+			"\t\t\td.divisor_name,\n" +
+			"\t\t\td.orderno \n" +
+			"\t\tFROM\n" +
+			"\t\t\tuser_answers u\n" +
+			"\t\t\tINNER JOIN question q ON u.question_code = q.`code`\n" +
+			"\t\t\tINNER JOIN question_options qo ON q.`code` = qo.question_code\n" +
+			"\t\t\tINNER JOIN divisor d ON q.divisor_code = d.`code` \n" +
+			"\t\tWHERE\n" +
+			"\t\t\tq.question_type = 'INPUT' \n" +
+			"\t\t\tAND u.evaluation_user_code = #{EVALUATOION_CODE}\n" +
+			"\t\t\tAND q.valid = 1 \n" +
+			"\t\t\tAND qo.valid = 1 \n" +
+			"\t\t\tAND d.valid = 1 UNION ALL\n" +
+			"\t\t\t\n" +
+			"\t\t\tselect value,divisor_cat,norm_code,divisor_name,orderno from (\n" +
+			"\t\t\tSELECT \n" +
+			"\t\t\t DISTINCT\n" +
+			"\t\t\tcol2 AS \n" +
+			"\t\tVALUE\n" +
+			"\t\t\t,\n" +
+			"\t\t\tn.divisor_cat,\n" +
+			"\t\t\tn.norm_code,\n" +
+			"\t\t\tn.divisor_name,\n" +
+			"\t\t\tn.orderno ,question_code\n" +
+			"\t\tFROM\n" +
+			"\t\t\t(SELECT\n" +
+			"\tSUBSTRING_INDEX( SUBSTRING_INDEX( bb.`value`, '&', 1 ), ':', 1 ) AS col1,\n" +
+			"\tSUBSTRING_INDEX( SUBSTRING_INDEX( bb.`value`, '&', 1 ), ':', - 1 ) AS col2 \n" +
+			"FROM\n" +
+			"\t(\n" +
+			"\tSELECT DISTINCT\n" +
+			"\t\tu.`value`,\n" +
+			"\t\tq.question_code,\n" +
+			"\t\td.divisor_cat,\n" +
+			"\t\td.norm_code,\n" +
+			"\t\td.orderno \n" +
+			"\tFROM\n" +
+			"\t\tuser_answers u,\n" +
+			"\t\tquestion q,\n" +
+			"\t\tquestion_options qo,\n" +
+			"\t\tdivisor d \n" +
+			"\tWHERE\n" +
+			"\t\tu.question_code = q.`code` \n" +
+			"\t\tAND q.`code` = qo.question_code \n" +
+			"\t\tAND q.question_type = 'OPTION_INPUT' \n" +
+			"\t\tAND qo.divisor_code = d.`code` \n" +
+			"\t\tAND u.evaluation_user_code = #{EVALUATOION_CODE} \n" +
+			"\t\tAND q.valid = 1 \n" +
+			"\t\tAND qo.valid = 1 \n" +
+			"\t\tAND d.valid = 1 \n" +
+			"\tORDER BY\n" +
+			"\t\tq.question_code \n" +
+			"\t) AS bb UNION ALL\n" +
+			"SELECT\n" +
+			"\tSUBSTRING_INDEX( SUBSTRING_INDEX( bb.`value`, '&', - 1 ), ':', 1 ) AS col1,\n" +
+			"\tSUBSTRING_INDEX( SUBSTRING_INDEX( bb.`value`, '&', - 1 ), ':', - 1 ) AS col2 \n" +
+			"FROM\n" +
+			"\t(\n" +
+			"\tSELECT DISTINCT\n" +
+			"\t\tu.`value`,\n" +
+			"\t\tq.question_code,\n" +
+			"\t\td.orderno \n" +
+			"\tFROM\n" +
+			"\t\tuser_answers u,\n" +
+			"\t\tquestion q,\n" +
+			"\t\tquestion_options qo,\n" +
+			"\t\tdivisor d \n" +
+			"\tWHERE\n" +
+			"\t\tu.question_code = q.`code` \n" +
+			"\t\tAND q.`code` = qo.question_code \n" +
+			"\t\tAND q.question_type = 'OPTION_INPUT' \n" +
+			"\t\tAND qo.divisor_code = d.`code` \n" +
+			"\t\tAND u.evaluation_user_code = #{EVALUATOION_CODE} \n" +
+			"\t\tAND q.valid = 1 \n" +
+			"\t\tAND qo.valid = 1 \n" +
+			"\t\tAND d.valid = 1 \n" +
+			"\tORDER BY\n" +
+			"\t\tq.question_code \n" +
+			"\t) AS bb \n" +
+			"\t) AS cc,\n" +
+			"\tquestion_options p,\n" +
+			"\tdivisor n \n" +
+			"WHERE\n" +
+			"\tcc.col1 = p.`code` \n" +
+			"\tAND p.divisor_code = n.`code`\n" +
+			"\t) vv ) vv \n" +
+			"\tORDER BY\n" +
+			"\t\tvv.orderno ASC \n" +
+			"\t ")
 	List<ReportDivisorInfoCatBean> getDivisorInfo(@Param("EVALUATOION_CODE") String EVALUATOION_CODE);
 	
 	@Select("SELECT"

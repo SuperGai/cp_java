@@ -1,7 +1,6 @@
 package com.hh.appraisal.springboot.utils;
 
-import com.aspose.words.Document;
-import com.aspose.words.License;
+import com.aspose.words.*;
 import com.spire.xls.ConverterSetting;
 import com.spire.xls.Workbook;
 import com.spire.xls.Worksheet;
@@ -71,7 +70,21 @@ public class WordToPdf {
 			FileOutputStream os = new FileOutputStream(file);
 			Document doc = new Document(inPath);
 			doc.updateFields();
-			doc.save(os, 40);
+			// 创建 PDF 转换选项
+			PdfSaveOptions pdfSaveOptions = new PdfSaveOptions();
+			pdfSaveOptions.setCompliance(PdfCompliance.PDF_A_1_A);
+			pdfSaveOptions.setEmbedFullFonts(true);
+			pdfSaveOptions.setSaveFormat(SaveFormat.PDF);
+
+			// Set font embedding options
+			pdfSaveOptions.setEmbedFullFonts(true);
+
+			pdfSaveOptions.setExportDocumentStructure(true);
+
+			pdfSaveOptions.deepClone();
+
+			doc.save(os,pdfSaveOptions);
+//			doc.save(os, 40);
 
 			long now = System.currentTimeMillis();
 			System.out.println("共耗时：" + (now - old) / 1000.0D + "秒");

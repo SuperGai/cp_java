@@ -1,6 +1,5 @@
 package com.hh.appraisal.springboot.core.wxmini;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

@@ -11,32 +11,32 @@ public class Model2Config {
 	/**
 	 * 模板地址
 	 */
-	public static final String modelPath = "C:\\Program Files\\java\\nginx-1.6.3\\html\\file\\model\\管培生测评报模板.docx";
-
-	/**
-	 * 能力分析报告 excel 模板地址
-	 */
-	public static final String nlfxModelXlsxPath = "C:\\Program Files\\java\\nginx-1.6.3\\html\\file\\model\\table.xlsx";
-
-	/**
-	 * 答题情况Excel模板地址
-	 */
-	public static final String dtqkModelPath = "C:\\Program Files\\java\\nginx-1.6.3\\html\\file\\model\\答题情况.docx";
-
-//	 /**
-//     * 模板地址
-//     */
-//    public static final String modelPath = "/Users/gaigai/Documents/Study/UKM/03 index/report/测评报告模板-盖盖.docx";
+//	public static final String modelPath = "C:\\Program Files\\java\\nginx-1.6.3\\html\\file\\model\\管培生测评报模板.docx";
 //
 //	/**
 //	 * 能力分析报告 excel 模板地址
 //	 */
-//    public static final String nlfxModelXlsxPath = "/Users/gaigai/Documents/Study/UKM/03 index/report/table.xlsx";
+//	public static final String nlfxModelXlsxPath = "C:\\Program Files\\java\\nginx-1.6.3\\html\\file\\model\\table.xlsx";
 //
-//    /**
-//     * 答题情况Excel模板地址
-//     */
-//    public static final String dtqkModelPath = "/Users/gaigai/Documents/Study/UKM/03 index/report/答题情况.docx";
+//	/**
+//	 * 答题情况Excel模板地址
+//	 */
+//	public static final String dtqkModelPath = "C:\\Program Files\\java\\nginx-1.6.3\\html\\file\\model\\答题情况.docx";
+
+	 /**
+     * 模板地址
+     */
+    public static final String modelPath = "/Users/gaigai/Documents/Study/UKM/03 index/report/测评报告模板-盖盖.docx";
+
+	/**
+	 * 能力分析报告 excel 模板地址
+	 */
+    public static final String nlfxModelXlsxPath = "/Users/gaigai/Documents/Study/UKM/03 index/report/table.xlsx";
+
+    /**
+     * 答题情况Excel模板地址
+     */
+    public static final String dtqkModelPath = "/Users/gaigai/Documents/Study/UKM/03 index/report/答题情况.docx";
 
 //  答题时间，在标准时间的0.6-1.6倍为合理时间，文本描述为：XXX答题时间在合理范围内，测评过程有效
 //  耗时为给定时间的0.4-0.59倍，文本描述为：XXX答题时间少于标准时间，请结合其日常行为综合评估

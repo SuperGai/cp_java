@@ -23,6 +23,8 @@ public class DivisorCatBean  implements Serializable {
 
     private String catName;
 
+    private String catDesc;
+
     
     private List<DivisorCatItemBean> items=new ArrayList<DivisorCatItemBean>();
 	
